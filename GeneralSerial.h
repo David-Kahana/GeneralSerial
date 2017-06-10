@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_GeneralSerial.h"
+#include "JsonSettings.h"
 
 class GeneralSerial : public QMainWindow
 {
