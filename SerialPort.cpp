@@ -86,6 +86,44 @@ int CSerialPort::getPorts(std::vector<UINT>& ports, std::vector<std::wstring>& f
 	return (int)m_ports.size();
 }
 
+int CSerialPort::getSettableBaudrate(int portIndex, std::vector<std::wstring>& settableBaudrates)
+{
+	settableBaudrates.clear();
+	_COMMPROP comProp;
+	HANDLE hComm;
+	if (m_ports.size() <= portIndex)
+	{
+		return -1;
+	}
+	std::wstring portName = L"\\\\.\\COM";
+	portName += std::to_wstring(m_ports[portIndex]);
+    //port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
+	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);        
+	if (hComm == INVALID_HANDLE_VALUE)
+	{
+		return -2;
+	}
+	//LPCOMMPROP lpCommProp;
+	BOOL ret = GetCommProperties(hComm, &comProp);
+	//DWORD br = comProp.dwMaxBaud;
+	DWORD br = comProp.dwSettableBaud;
+	std::wstring brStr = L"";
+	DWORD mask = 1;
+	for (int i = 0; i < 19; ++i)
+	{
+		mask = 1 << i;
+		if ((br & mask) == mask)
+		{
+			brStr += baudRatesStrW[i] + L",";
+			settableBaudrates.push_back(baudRatesStrW[i]);
+		}
+		mask = 1<<i;
+	}
+	wprintf_s(L"max baud for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
+	CloseHandle(hComm);//Closing the Serial Port
+	return comProp.dwSettableBaud;
+}
+
 int CSerialPort::QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort)
 {
 	//What will be the return value from the method (assume the worst)
