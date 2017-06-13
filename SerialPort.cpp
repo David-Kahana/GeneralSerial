@@ -86,8 +86,18 @@ int CSerialPort::getPorts(std::vector<UINT>& ports, std::vector<std::wstring>& f
 	return (int)m_ports.size();
 }
 
+int CSerialPort::getPortNumber(int index)
+{
+	if (index < 0 || index >= (int)m_ports.size())
+	{
+		return -1;
+	}
+	return (int)m_ports[index];
+}
+
 int CSerialPort::getSettableBaudrate(int portIndex, std::vector<std::wstring>& settableBaudrates)
 {
+	int number = 0;
 	settableBaudrates.clear();
 	_COMMPROP comProp;
 	HANDLE hComm;
@@ -116,12 +126,53 @@ int CSerialPort::getSettableBaudrate(int portIndex, std::vector<std::wstring>& s
 		{
 			brStr += baudRatesStrW[i] + L",";
 			settableBaudrates.push_back(baudRatesStrW[i]);
+			number++;
 		}
 		mask = 1<<i;
 	}
-	wprintf_s(L"max baud for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
+	//wprintf_s(L"settable baudrates for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
 	CloseHandle(hComm);//Closing the Serial Port
-	return comProp.dwSettableBaud;
+	return number;
+}
+
+int CSerialPort::getSettableBaudrateIndex(int portIndex, std::vector<int>& settableBaudratesIndex)
+{
+	int number = 0;
+	settableBaudratesIndex.clear();
+	_COMMPROP comProp;
+	HANDLE hComm;
+	if (m_ports.size() <= portIndex)
+	{
+		return -1;
+	}
+	std::wstring portName = L"\\\\.\\COM";
+	portName += std::to_wstring(m_ports[portIndex]);
+	//port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
+	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hComm == INVALID_HANDLE_VALUE)
+	{
+		return -2;
+	}
+	//LPCOMMPROP lpCommProp;
+	BOOL ret = GetCommProperties(hComm, &comProp);
+	//DWORD br = comProp.dwMaxBaud;
+	DWORD br = comProp.dwSettableBaud;
+	std::wstring brStr = L"";
+	DWORD mask = 1;
+	for (int i = 0; i < 19; ++i)
+	{
+		mask = 1 << i;
+		if ((br & mask) == mask)
+		{
+			brStr += baudRatesStrW[i] + L",";
+			settableBaudratesIndex.push_back(i);
+			number++;
+		}
+		mask = 1 << i;
+	}
+	//wprintf_s(L"settable baudrates for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
+	CloseHandle(hComm);//Closing the Serial Port
+	return number;
 }
 
 int CSerialPort::QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort)

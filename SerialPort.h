@@ -44,7 +44,9 @@ public:
 	~CSerialPort();
 	int scanPorts();
 	int getPorts(std::vector<UINT>& ports, std::vector<std::wstring>& friendlyNames);
+	int getPortNumber(int index);
 	int getSettableBaudrate(int portIndex, std::vector<std::wstring>& settableBaudrates);
+	int getSettableBaudrateIndex(int portIndex, std::vector<int>& settableBaudratesIndex);
 private:
 	int QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort);
 	int RegQueryValueString(ATL::CRegKey& key, LPCTSTR lpValueName, LPTSTR& pszValue);

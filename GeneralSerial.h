@@ -19,6 +19,9 @@ private slots:
 
 private:
 	Ui::GeneralSerialClass ui;
-	int m_currentPort = 0;
-	CSerialPort sp;
+	QActionGroup* m_portActionGroup;
+	QActionGroup* m_baudActionGroup;
+	
+	int m_currentPortIndex = 0;
+	CSerialPort m_serialPort;
 };

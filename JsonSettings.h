@@ -1,8 +1,8 @@
 #pragma once
 #include <Windows.h>
-#include "..\rapidjson\include\rapidjson\document.h"
-#include "..\rapidjson\include\rapidjson\writer.h"
-#include "..\rapidjson\include\rapidjson\stringbuffer.h"
+#include "..\rapidjson\document.h"
+#include "..\rapidjson\writer.h"
+#include "..\rapidjson\stringbuffer.h"
 
 using namespace std;
 using namespace rapidjson;

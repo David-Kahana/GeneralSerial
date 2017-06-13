@@ -1,50 +1,67 @@
 #include "stdafx.h"
 #include "GeneralSerial.h"
 
-
 GeneralSerial::GeneralSerial(QWidget *parent)
 	: QMainWindow(parent)
 {
 	std::vector<UINT> ports;
 	std::vector<std::wstring> friendlyNames;
-	std::vector<std::wstring> settableBaudrates;
+	std::vector<int> settableBaudratesIndex;
 	ui.setupUi(this);
 	CJsonSettings& s = CJsonSettings::getInstance();
 	s.createDefaultConfig();
-	int ret = sp.scanPorts();
+	int ret = m_serialPort.scanPorts();
 	if (ret == TRUE)
 	{
-		sp.getPorts(ports, friendlyNames);
+		m_serialPort.getPorts(ports, friendlyNames);
 	}
+	m_portActionGroup = new QActionGroup(this);
+	m_portActionGroup->setExclusive(true);
 	for (int i = 0; i < ports.size(); ++i)
 	{
 		QString portName = "COM" + QString::number(ports[i]) + " " + QString::fromStdWString(friendlyNames[i]);
 		QAction* act = new QAction(portName);
 		act->setData(i);
+		act->setCheckable(true);
+		m_portActionGroup->addAction(act);
 		ui.menuPort->addAction(act);
 		_tprintf(_T("COM%u <%s>\n"), ports[i], friendlyNames[i].c_str());
 	}
-	connect(ui.menuPort, &QMenu::triggered, this, &GeneralSerial::changePort);
-	sp.getSettableBaudrate(0, settableBaudrates);
-	for (int i = 0; i < settableBaudrates.size(); ++i)
+	m_baudActionGroup = new QActionGroup(this);
+	for (int i = 0; i < m_serialPort.baudRatesStrW.size(); ++i)
 	{
-		ui.menuBaudRate->addAction(QString::fromStdWString(settableBaudrates[i]));
+		QAction* act = new QAction(QString::fromStdWString(m_serialPort.baudRatesStrW[i]));
+		act->setData(i);
+		act->setCheckable(true);
+		m_baudActionGroup->addAction(act);
 	}
+	m_serialPort.getSettableBaudrateIndex(0, settableBaudratesIndex);
+	for (int i = 0; i < settableBaudratesIndex.size(); ++i)
+	{
+		ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
+	}
+	
+	connect(ui.menuPort, &QMenu::triggered, this, &GeneralSerial::changePort);
 	connect(ui.menuBaudRate, &QMenu::triggered, this, &GeneralSerial::changeBaud);
 }
 
 void GeneralSerial::changePort(QAction* act)
 {
-	wprintf_s(L"port n: %d\n", act->data().toInt());
 	int newPort = act->data().toInt();
-	std::vector<std::wstring> settableBaudrates;
-	if (m_currentPort != newPort)
+	//wprintf_s(L"port %d: COM%d\n", newPort, m_serialPort.getPortNumber(newPort));
+	std::vector<int> settableBaudratesIndex;
+	if (m_currentPortIndex != newPort)
 	{
+		m_currentPortIndex = newPort;
 		ui.menuBaudRate->clear();
-		sp.getSettableBaudrate(newPort, settableBaudrates);
-		for (int i = 0; i < settableBaudrates.size(); ++i)
+		if (m_baudActionGroup->checkedAction() != NULL)
 		{
-			ui.menuBaudRate->addAction(QString::fromStdWString(settableBaudrates[i]));
+			m_baudActionGroup->checkedAction()->setChecked(false);
+		}
+		m_serialPort.getSettableBaudrateIndex(newPort, settableBaudratesIndex);
+		for (int i = 0; i < settableBaudratesIndex.size(); ++i)
+		{
+			ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
 		}
 	}
 	//wprintf_s(L"port: %s\n", act->text().toStdWString().c_str());
