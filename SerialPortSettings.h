@@ -35,7 +35,13 @@ public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
 	int setSettables(_COMMPROP& comProp);
+	int getSettableBaudRates(vector<unsigned char>& settableBaud);
+	int getSettableParities(vector<unsigned char>& settableParity);
+	int getSettableStopBits(vector<unsigned char>& settableStop);
+	int getSettableFlowControls(vector<unsigned char>& settableFlow);
+	int getSettableDataBits(vector<unsigned char>& settableDataBits);
 private:
+	static int copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst);
 	int setSettableBaudRates(DWORD SettableBaud);
 	int setSettableParities(WORD SettableStopParity);
 	int setSettableStopBits(WORD SettableStopParity);

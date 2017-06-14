@@ -65,6 +65,41 @@ int CSerialPortSettings::setSettables(_COMMPROP& comProp)
 	return ret;
 }
 
+int CSerialPortSettings::getSettableBaudRates(vector<unsigned char>& settableBaud)
+{
+	return copyUCHARVector(m_settableBaudRatesIndex, settableBaud);
+}
+
+int CSerialPortSettings::getSettableParities(vector<unsigned char>& settableParity)
+{
+	return copyUCHARVector(m_settableParitiesIndex, settableParity);
+}
+
+int CSerialPortSettings::getSettableStopBits(vector<unsigned char>& settableStop)
+{
+	return copyUCHARVector(m_settableStopBitsIndex, settableStop);
+}
+
+int CSerialPortSettings::getSettableFlowControls(vector<unsigned char>& settableFlow)
+{
+	return copyUCHARVector(m_settableFlowControlsIndex, settableFlow);
+}
+
+int CSerialPortSettings::getSettableDataBits(vector<unsigned char>& settableDataBits)
+{
+	return copyUCHARVector(m_settableDataBitsIndex, settableDataBits);
+}
+
+int CSerialPortSettings::copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst)
+{
+	dst.clear();
+	for (int i = 0; i < (int)src.size(); ++i)
+	{
+		dst.push_back(src[i]);
+	}
+	return OK;
+}
+
 //#define BAUD_075          ((DWORD)0x00000001)
 //#define BAUD_110          ((DWORD)0x00000002)
 //#define BAUD_134_5        ((DWORD)0x00000004)

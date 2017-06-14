@@ -6,11 +6,11 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 {
 	std::vector<UINT> ports;
 	std::vector<std::wstring> friendlyNames;
-	std::vector<int> settableBaudratesIndex;
+	std::vector<unsigned char> settableBaudratesIndex;
 	ui.setupUi(this);
 	CJsonSettings& s = CJsonSettings::getInstance();
 	s.createDefaultConfig();
-	int ret = m_serialPort.scanPorts();
+	int ret = CSerialPort::scanPorts0();
 	if (ret == TRUE)
 	{
 		m_serialPort.getPorts(ports, friendlyNames);
@@ -35,7 +35,10 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 		act->setCheckable(true);
 		m_baudActionGroup->addAction(act);
 	}
-	m_serialPort.getSettableBaudrateIndex(0, settableBaudratesIndex);
+	ret = CSerialPort::getPortsCapabilities();
+
+
+	ret = CSerialPort::getSettableBaudRates(0, settableBaudratesIndex);
 	for (int i = 0; i < settableBaudratesIndex.size(); ++i)
 	{
 		ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
@@ -49,7 +52,7 @@ void GeneralSerial::changePort(QAction* act)
 {
 	int newPort = act->data().toInt();
 	//wprintf_s(L"port %d: COM%d\n", newPort, m_serialPort.getPortNumber(newPort));
-	std::vector<int> settableBaudratesIndex;
+	std::vector<unsigned char> settableBaudratesIndex;
 	if (m_currentPortIndex != newPort)
 	{
 		m_currentPortIndex = newPort;
@@ -58,7 +61,7 @@ void GeneralSerial::changePort(QAction* act)
 		{
 			m_baudActionGroup->checkedAction()->setChecked(false);
 		}
-		m_serialPort.getSettableBaudrateIndex(newPort, settableBaudratesIndex);
+		CSerialPort::getSettableBaudRates(newPort, settableBaudratesIndex);
 		for (int i = 0; i < settableBaudratesIndex.size(); ++i)
 		{
 			ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SerialPort.h"
 
+vector<CSerialPort> CSerialPort::m_ports;
+
 CSerialPort::CSerialPort()
 {
 }
@@ -9,10 +11,9 @@ CSerialPort::~CSerialPort()
 {
 }
 
-int CSerialPort::scanPorts()
+int CSerialPort::scanPorts0()
 {
 	m_ports.clear();
-	m_friendlyNames.clear();
 	//DWORD dwFlags = DIGCF_PRESENT | DIGCF_DEVICEINTERFACE;
 	//GUID guid = GUID_DEVINTERFACE_COMPORT;
 	DWORD dwFlags = DIGCF_PRESENT;
@@ -44,23 +45,34 @@ int CSerialPort::scanPorts()
 				int nPort = 0;
 				if (QueryRegistryPortName(deviceKey, nPort))
 				{
-					m_ports.push_back(nPort);
+					CSerialPort* newPort = new CSerialPort;
+					newPort->m_portNumber = (UINT)nPort;
+					ATL::CHeapPtr<BYTE> byFriendlyName;
+					if (QueryDeviceDescription(hDevInfoSet, devInfo, byFriendlyName))
+					{
+						newPort->m_friendlyName = reinterpret_cast<LPCTSTR>(byFriendlyName.m_pData);
+					}
+					else
+					{
+						newPort->m_friendlyName = L"";
+					}
+					m_ports.push_back(*newPort);
 					bAdded = TRUE;
 				}
 			}
 			//If the port was a serial port, then also try to get its friendly name
-			if (bAdded)
-			{
-				ATL::CHeapPtr<BYTE> byFriendlyName;
-				if (QueryDeviceDescription(hDevInfoSet, devInfo, byFriendlyName))
-				{
-					m_friendlyNames.push_back(reinterpret_cast<LPCTSTR>(byFriendlyName.m_pData));
-				}
-				else
-				{
-					m_friendlyNames.push_back(_T(""));
-				}
-			}
+			//if (bAdded)
+			//{
+			//	ATL::CHeapPtr<BYTE> byFriendlyName;
+			//	if (QueryDeviceDescription(hDevInfoSet, devInfo, byFriendlyName))
+			//	{
+			//		m_friendlyNames.push_back(reinterpret_cast<LPCTSTR>(byFriendlyName.m_pData));
+			//	}
+			//	else
+			//	{
+			//		m_friendlyNames.push_back(_T(""));
+			//	}
+			//}
 		}
 		++nIndex;
 	}
@@ -74,14 +86,14 @@ int CSerialPort::scanPorts()
 	return TRUE;
 }
 
-int CSerialPort::getPorts(std::vector<UINT>& ports, std::vector<std::wstring>& friendlyNames)
+int CSerialPort::getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames)
 {
 	ports.clear();
 	friendlyNames.clear();
 	for (int i = 0; i < m_ports.size(); ++i)
 	{
-		ports.push_back(m_ports[i]);
-		friendlyNames.push_back(m_friendlyNames[i]);
+		ports.push_back(m_ports[i].m_portNumber);
+		friendlyNames.push_back(m_ports[i].m_friendlyName);
 	}
 	return (int)m_ports.size();
 }
@@ -92,96 +104,35 @@ int CSerialPort::getPortNumber(int index)
 	{
 		return -1;
 	}
-	return (int)m_ports[index];
+	return (int)m_ports[index].m_portNumber;
 }
 
-int CSerialPort::getSettableBaudrate(int portIndex, std::vector<std::wstring>& settableBaudrates)
+int CSerialPort::getPortsCapabilities()
 {
-	int number = 0;
-	settableBaudrates.clear();
-	_COMMPROP comProp;
-	HANDLE hComm;
-	if (m_ports.size() <= portIndex)
+	for (int i = 0; i < m_ports.size(); ++i)
 	{
-		return -1;
+		m_ports[i].getPortCapabilities();
 	}
-	std::wstring portName = L"\\\\.\\COM";
-	portName += std::to_wstring(m_ports[portIndex]);
-    //port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
-	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);        
-	if (hComm == INVALID_HANDLE_VALUE)
-	{
-		return -2;
-	}
-	//LPCOMMPROP lpCommProp;
-	BOOL ret = GetCommProperties(hComm, &comProp);
-	//DWORD br = comProp.dwMaxBaud;
-	DWORD br = comProp.dwSettableBaud;
-	std::wstring brStr = L"";
-	DWORD mask = 1;
-	for (int i = 0; i < 19; ++i)
-	{
-		mask = 1 << i;
-		if ((br & mask) == mask)
-		{
-			brStr += CSerialPortSettings::baudRatesStrW[i] + L",";
-			settableBaudrates.push_back(CSerialPortSettings::baudRatesStrW[i]);
-			number++;
-		}
-		mask = 1<<i;
-	}
-	//wprintf_s(L"settable baudrates for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
-	CloseHandle(hComm);//Closing the Serial Port
-	return number;
+	return OK; //todo: return real 
 }
 
-int CSerialPort::getSettableBaudrateIndex(int portIndex, std::vector<int>& settableBaudratesIndex)
+int CSerialPort::getSettableBaudRates(int portIndex, vector<unsigned char>& settableBaudratesIndex)
 {
-	int number = 0;
 	settableBaudratesIndex.clear();
-	_COMMPROP comProp;
-	HANDLE hComm;
-	if (m_ports.size() <= portIndex)
+	if (portIndex >= m_ports.size())
 	{
 		return -1;
 	}
-	std::wstring portName = L"\\\\.\\COM";
-	portName += std::to_wstring(m_ports[portIndex]);
-	//port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
-	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hComm == INVALID_HANDLE_VALUE)
-	{
-		return -2;
-	}
-	//LPCOMMPROP lpCommProp;
-	BOOL ret = GetCommProperties(hComm, &comProp);
-	//DWORD br = comProp.dwMaxBaud;
-	DWORD br = comProp.dwSettableBaud;
-	std::wstring brStr = L"";
-	DWORD mask = 1;
-	for (int i = 0; i < 19; ++i)
-	{
-		mask = 1 << i;
-		if ((br & mask) == mask)
-		{
-			brStr += CSerialPortSettings::baudRatesStrW[i] + L",";
-			settableBaudratesIndex.push_back(i);
-			number++;
-		}
-		mask = 1 << i;
-	}
-	//wprintf_s(L"settable baudrates for port COM%d: %s\n", m_ports[portIndex], brStr.c_str());
-	CloseHandle(hComm);//Closing the Serial Port
-	return number;
+	return m_ports[portIndex].m_portSettings.getSettableBaudRates(settableBaudratesIndex);
 }
 
-int CSerialPort::getPortCapabilities(int portNumber, CSerialPortSettings& portSettings)
+int CSerialPort::getPortCapabilities()
 {
 	int ret = 0;
 	_COMMPROP comProp;
 	HANDLE hComm;
 	std::wstring portName = L"\\\\.\\COM";
-	portName += std::to_wstring(portNumber);
+	portName += std::to_wstring(m_portNumber);
 	//port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
 	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hComm == INVALID_HANDLE_VALUE)
@@ -189,12 +140,12 @@ int CSerialPort::getPortCapabilities(int portNumber, CSerialPortSettings& portSe
 		return -1;
 	}
 	ret = GetCommProperties(hComm, &comProp);
-	if (ret != 0)
+	if (ret == 0)
 	{
 		CloseHandle(hComm);//Closing the Serial Port
 		return -2;
 	}
-	ret = portSettings.setSettables(comProp);
+	ret = m_portSettings.setSettables(comProp);
 	CloseHandle(hComm);//Closing the Serial Port
 	return ret;
 }
