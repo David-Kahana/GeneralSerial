@@ -1,28 +1,52 @@
 #pragma once
+#include <Windows.h>
+#include <setupapi.h>
+#include <atlbase.h>
 #include <vector>
 #include <string>
+
+#define OK 1
+
 using namespace std;
 class CSerialPortSettings
 {
 public:
-	const vector<string> parityStrings = { "None", " ", "Even", "Odd", "Space", "Mark" };
-	const vector<string> parityStringsAlt = { "NoParity", " ", "EvenParity", "OddParity", "SpaceParity", "MarkParity" };
-	const vector<string> stopBitsStrings = { " ", "OneStop", "TwoStop", "OneAndHalfStop" };
-	const vector<string> stopBitsStringsAlt = { " ", "1", "2", "1.5" };
-	const vector<string> flowControlStrings = { "NoFlowControl", "HardwareControl", "SoftwareControl" };
-	const vector<string> flowControlStringsAlt = { "None", "RTS/CTS", "XON/XOFF" };
-	const vector<wstring> parityStringsW = { L"None", L" ", L"Even", L"Odd", L"Space", L"Mark" };
-	const vector<wstring> parityStringsAltW = { L"NoParity", L" ", L"EvenParity", L"OddParity", L"SpaceParity", L"MarkParity" };
-	const vector<wstring> stopBitsStringsW = { L" ", L"OneStop", L"TwoStop", L"OneAndHalfStop" };
-	const vector<wstring> stopBitsStringsAltW = { L" ", L"1", L"2", L"1.5" };
-	const vector<wstring> flowControlStringsW = { L"NoFlowControl", L"HardwareControl", L"SoftwareControl" };
-	const vector<wstring> flowControlStringsAltW = { L"None", L"RTS/CTS", L"XON/XOFF" };
+	static const vector<string> parityStrings;
+	static const vector<wstring> parityStringsW;
+	static const vector<string> parityStringsAlt;
+	static const vector<wstring> parityStringsAltW;
+	static const vector<string> stopBitsStrings;
+	static const vector<wstring> stopBitsStringsW;
+	static const vector<string> stopBitsStringsAlt;
+	static const vector<wstring> stopBitsStringsAltW;
+	static const vector<string> flowControlStrings;
+	static const vector<string> flowControlStringsAlt;
+	static const vector<wstring> flowControlStringsW;
+	static const vector<wstring> flowControlStringsAltW;
 	static const vector<wstring> baudRatesStrW;
 	static const vector<string> baudRatesStr; 
-	const vector<int> baudRates = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
+	static const vector<string> dataBitsStrings;
+	static const vector<wstring> dataBitsStringsW;
+	static const vector<string> dataBitsStringsAlt;
+	static const vector<wstring> dataBitsStringsAltW;
+	const vector<int> baudRates = { 75, 110, 135, 150, 300, 600, 1200, 1800, 2400, 4800, 7200, 9600, 14400, 19200, 38400, 56000, 128000, 115200, 57600, -1 };
 	bool localEchoEnabled;
 public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
+	int setSettables(_COMMPROP& comProp);
+private:
+	int setSettableBaudRates(DWORD SettableBaud);
+	int setSettableParities(WORD SettableStopParity);
+	int setSettableStopBits(WORD SettableStopParity);
+	int setSettableFlowControls(DWORD ProvCapabilities);
+	int setSettableDataBits(WORD SettableData);
+private:
+	vector<unsigned char> m_settableBaudRatesIndex;
+	vector<unsigned char> m_settableParitiesIndex;
+	vector<unsigned char> m_settableStopBitsIndex;
+	vector<unsigned char> m_settableFlowControlsIndex;
+	vector<unsigned char> m_settableDataBitsIndex;
+	
 };
 

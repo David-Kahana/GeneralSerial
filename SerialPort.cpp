@@ -175,6 +175,30 @@ int CSerialPort::getSettableBaudrateIndex(int portIndex, std::vector<int>& setta
 	return number;
 }
 
+int CSerialPort::getPortCapabilities(int portNumber, CSerialPortSettings& portSettings)
+{
+	int ret = 0;
+	_COMMPROP comProp;
+	HANDLE hComm;
+	std::wstring portName = L"\\\\.\\COM";
+	portName += std::to_wstring(portNumber);
+	//port name //Read/Write // No Sharing // No Security// Open existing port only// Non Overlapped I/O// Null for Comm Devices
+	hComm = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hComm == INVALID_HANDLE_VALUE)
+	{
+		return -1;
+	}
+	ret = GetCommProperties(hComm, &comProp);
+	if (ret != 0)
+	{
+		CloseHandle(hComm);//Closing the Serial Port
+		return -2;
+	}
+	ret = portSettings.setSettables(comProp);
+	CloseHandle(hComm);//Closing the Serial Port
+	return ret;
+}
+
 int CSerialPort::QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort)
 {
 	//What will be the return value from the method (assume the worst)
