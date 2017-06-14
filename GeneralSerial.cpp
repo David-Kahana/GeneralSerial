@@ -28,9 +28,9 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 		_tprintf(_T("COM%u <%s>\n"), ports[i], friendlyNames[i].c_str());
 	}
 	m_baudActionGroup = new QActionGroup(this);
-	for (int i = 0; i < m_serialPort.baudRatesStrW.size(); ++i)
+	for (int i = 0; i < CSerialPortSettings::baudRatesStrW.size(); ++i)
 	{
-		QAction* act = new QAction(QString::fromStdWString(m_serialPort.baudRatesStrW[i]));
+		QAction* act = new QAction(QString::fromStdWString(CSerialPortSettings::baudRatesStrW[i]));
 		act->setData(i);
 		act->setCheckable(true);
 		m_baudActionGroup->addAction(act);

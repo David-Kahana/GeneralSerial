@@ -4,6 +4,7 @@
 using namespace std;
 class CSerialPortSettings
 {
+public:
 	const vector<string> parityStrings = { "None", " ", "Even", "Odd", "Space", "Mark" };
 	const vector<string> parityStringsAlt = { "NoParity", " ", "EvenParity", "OddParity", "SpaceParity", "MarkParity" };
 	const vector<string> stopBitsStrings = { " ", "OneStop", "TwoStop", "OneAndHalfStop" };
@@ -16,6 +17,8 @@ class CSerialPortSettings
 	const vector<wstring> stopBitsStringsAltW = { L" ", L"1", L"2", L"1.5" };
 	const vector<wstring> flowControlStringsW = { L"NoFlowControl", L"HardwareControl", L"SoftwareControl" };
 	const vector<wstring> flowControlStringsAltW = { L"None", L"RTS/CTS", L"XON/XOFF" };
+	static const vector<wstring> baudRatesStrW;
+	static const vector<string> baudRatesStr; 
 	const vector<int> baudRates = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
 	bool localEchoEnabled;
 public:

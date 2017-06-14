@@ -124,8 +124,8 @@ int CSerialPort::getSettableBaudrate(int portIndex, std::vector<std::wstring>& s
 		mask = 1 << i;
 		if ((br & mask) == mask)
 		{
-			brStr += baudRatesStrW[i] + L",";
-			settableBaudrates.push_back(baudRatesStrW[i]);
+			brStr += CSerialPortSettings::baudRatesStrW[i] + L",";
+			settableBaudrates.push_back(CSerialPortSettings::baudRatesStrW[i]);
 			number++;
 		}
 		mask = 1<<i;
@@ -164,7 +164,7 @@ int CSerialPort::getSettableBaudrateIndex(int portIndex, std::vector<int>& setta
 		mask = 1 << i;
 		if ((br & mask) == mask)
 		{
-			brStr += baudRatesStrW[i] + L",";
+			brStr += CSerialPortSettings::baudRatesStrW[i] + L",";
 			settableBaudratesIndex.push_back(i);
 			number++;
 		}
