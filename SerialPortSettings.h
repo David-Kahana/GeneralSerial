@@ -35,11 +35,16 @@ public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
 	int setSettables(_COMMPROP& comProp);
-	int getSettableBaudRates(vector<unsigned char>& settableBaud);
-	int getSettableParities(vector<unsigned char>& settableParity);
-	int getSettableStopBits(vector<unsigned char>& settableStop);
-	int getSettableFlowControls(vector<unsigned char>& settableFlow);
-	int getSettableDataBits(vector<unsigned char>& settableDataBits);
+	const vector<unsigned char>& settableBaud() const { return m_settableBaudRatesIndex; }
+	const vector<unsigned char>& settableParity() const { return m_settableParitiesIndex; }
+	const vector<unsigned char>& settableStop() const { return m_settableStopBitsIndex; }
+	const vector<unsigned char>& settableFlow() const { return m_settableFlowControlsIndex; }
+	const vector<unsigned char>& settableDataBits() const { return m_settableDataBitsIndex; }
+	//int getSettableBaudRates(vector<unsigned char>& settableBaud);
+	//int getSettableParities(vector<unsigned char>& settableParity);
+	//int getSettableStopBits(vector<unsigned char>& settableStop);
+	//int getSettableFlowControls(vector<unsigned char>& settableFlow);
+	//int getSettableDataBits(vector<unsigned char>& settableDataBits);
 private:
 	static int copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst);
 	int setSettableBaudRates(DWORD SettableBaud);

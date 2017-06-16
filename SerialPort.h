@@ -18,6 +18,8 @@ public:
 	static int getPortNumber(int index);
 	static int getPortsCapabilities();
 	static int getSettableBaudRates(int portIndex, vector<unsigned char>& settableBaudratesIndex);
+	static CSerialPortSettings& getPortRef(int index);
+	static CSerialPortSettings* getPortPtr(int index);
 private:
 	int getPortCapabilities();
 	static int QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort);

@@ -23,18 +23,6 @@
      <height>38</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuPort">
-    <property name="title">
-     <string>Port</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuBaudRate">
-    <property name="title">
-     <string>BaudRate</string>
-    </property>
-   </widget>
-   <addaction name="menuPort"/>
-   <addaction name="menuBaudRate"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

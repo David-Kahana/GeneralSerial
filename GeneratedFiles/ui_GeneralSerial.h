@@ -15,7 +15,6 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
@@ -28,8 +27,6 @@ class Ui_GeneralSerialClass
 public:
     QWidget *centralWidget;
     QMenuBar *menuBar;
-    QMenu *menuPort;
-    QMenu *menuBaudRate;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -44,10 +41,6 @@ public:
         menuBar = new QMenuBar(GeneralSerialClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 600, 38));
-        menuPort = new QMenu(menuBar);
-        menuPort->setObjectName(QStringLiteral("menuPort"));
-        menuBaudRate = new QMenu(menuBar);
-        menuBaudRate->setObjectName(QStringLiteral("menuBaudRate"));
         GeneralSerialClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(GeneralSerialClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -55,9 +48,6 @@ public:
         statusBar = new QStatusBar(GeneralSerialClass);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         GeneralSerialClass->setStatusBar(statusBar);
-
-        menuBar->addAction(menuPort->menuAction());
-        menuBar->addAction(menuBaudRate->menuAction());
 
         retranslateUi(GeneralSerialClass);
 
@@ -67,8 +57,6 @@ public:
     void retranslateUi(QMainWindow *GeneralSerialClass)
     {
         GeneralSerialClass->setWindowTitle(QApplication::translate("GeneralSerialClass", "GeneralSerial", Q_NULLPTR));
-        menuPort->setTitle(QApplication::translate("GeneralSerialClass", "Port", Q_NULLPTR));
-        menuBaudRate->setTitle(QApplication::translate("GeneralSerialClass", "BaudRate", Q_NULLPTR));
     } // retranslateUi
 
 };

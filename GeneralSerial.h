@@ -13,15 +13,31 @@ public:
 public:
 	GeneralSerial(QWidget *parent = Q_NULLPTR);
 private slots:
-	void changeBaud(QAction* act);
 	void changePort(QAction* act);
-
-
+	void changeBaud(QAction* act);
+	void changeParity(QAction* act);
+	void changeStopBits(QAction* act);
+	void changeFlowControl(QAction* act);
+	void changeDataBits(QAction* act);
 private:
 	Ui::GeneralSerialClass ui;
 	QActionGroup* m_portActionGroup;
 	QActionGroup* m_baudActionGroup;
-	
+	QActionGroup* m_parityActionGroup;
+	QActionGroup* m_stopActionGroup;
+	QActionGroup* m_flowActionGroup;
+	QActionGroup* m_dataActionGroup;
+	QMenu* portMenu;
+	QMenu* baudMenu;
+	QMenu* parityMenu;
+	QMenu* stopMenu;
+	QMenu* flowMenu; 
+	QMenu* dataMenu;
 	int m_currentPortIndex = 0;
-	CSerialPort m_serialPort;
+	
+private:
+	int createMenus();
+	int createActionGroups();
+	QActionGroup* makeActionGroup(const std::vector<std::wstring>& strs);
+	int getSetabbles();
 };

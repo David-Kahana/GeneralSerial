@@ -118,12 +118,32 @@ int CSerialPort::getPortsCapabilities()
 
 int CSerialPort::getSettableBaudRates(int portIndex, vector<unsigned char>& settableBaudratesIndex)
 {
-	settableBaudratesIndex.clear();
+	//settableBaudratesIndex.clear();
 	if (portIndex >= m_ports.size())
 	{
 		return -1;
 	}
-	return m_ports[portIndex].m_portSettings.getSettableBaudRates(settableBaudratesIndex);
+	//return m_ports[portIndex].m_portSettings.getSettableBaudRates(settableBaudratesIndex);
+	settableBaudratesIndex = m_ports[portIndex].m_portSettings.settableBaud();
+	return OK;
+}
+
+CSerialPortSettings& CSerialPort::getPortRef(int index)
+{
+	if (index >= m_ports.size())
+	{
+		return m_ports[0].m_portSettings;
+	}
+	return m_ports[index].m_portSettings;
+}
+
+CSerialPortSettings* CSerialPort::getPortPtr(int index)
+{
+	if (index >= m_ports.size() || index < 0)
+	{
+		return nullptr;
+	}
+	return &(m_ports[index].m_portSettings);
 }
 
 int CSerialPort::getPortCapabilities()
