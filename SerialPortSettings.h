@@ -8,6 +8,17 @@
 #define OK 1
 
 using namespace std;
+
+enum SerialProps
+{
+	BAUD_RATE = 0,
+	PARITY = 1,
+	STOP_BITS = 2,
+	FLOW_CONTROL = 3,
+	DATA_BITS = 4,
+	LAST_PROP = 5
+};
+
 class CSerialPortSettings
 {
 public:
@@ -40,11 +51,10 @@ public:
 	const vector<unsigned char>& settableStop() const { return m_settableStopBitsIndex; }
 	const vector<unsigned char>& settableFlow() const { return m_settableFlowControlsIndex; }
 	const vector<unsigned char>& settableDataBits() const { return m_settableDataBitsIndex; }
-	//int getSettableBaudRates(vector<unsigned char>& settableBaud);
-	//int getSettableParities(vector<unsigned char>& settableParity);
-	//int getSettableStopBits(vector<unsigned char>& settableStop);
-	//int getSettableFlowControls(vector<unsigned char>& settableFlow);
-	//int getSettableDataBits(vector<unsigned char>& settableDataBits);
+	const vector<unsigned char>& settableProps(SerialProps prop) const { return m_settablePropIndex[prop]; }
+	void setPropIndex(SerialProps prop, unsigned char index);
+	unsigned char getPropIndex(SerialProps prop);
+	
 private:
 	static int copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst);
 	int setSettableBaudRates(DWORD SettableBaud);
@@ -53,11 +63,12 @@ private:
 	int setSettableFlowControls(DWORD ProvCapabilities);
 	int setSettableDataBits(WORD SettableData);
 private:
+	unsigned char m_propertiesIndex[LAST_PROP];
+	vector<unsigned char> m_settablePropIndex[LAST_PROP];
 	vector<unsigned char> m_settableBaudRatesIndex;
 	vector<unsigned char> m_settableParitiesIndex;
 	vector<unsigned char> m_settableStopBitsIndex;
 	vector<unsigned char> m_settableFlowControlsIndex;
 	vector<unsigned char> m_settableDataBitsIndex;
-	
 };
 

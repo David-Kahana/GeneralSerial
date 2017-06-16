@@ -34,10 +34,13 @@ private:
 	QMenu* flowMenu; 
 	QMenu* dataMenu;
 	int m_currentPortIndex = 0;
+	CSerialPortSettings* m_currentPort;
 	
 private:
 	int createMenus();
 	int createActionGroups();
 	QActionGroup* makeActionGroup(const std::vector<std::wstring>& strs);
+	int putActionsInMenu(QActionGroup* ag, QMenu* menu, const std::vector<unsigned char>& index, unsigned char selected);
+	int putActionsInMenu(QActionGroup* ag, QMenu* menu, SerialProps prop);
 	int getSetabbles();
 };

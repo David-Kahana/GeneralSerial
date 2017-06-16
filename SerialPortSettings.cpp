@@ -32,6 +32,11 @@ const vector<string> CSerialPortSettings::baudRatesStr = { "BAUD_075", "BAUD_110
 
 CSerialPortSettings::CSerialPortSettings()
 {
+	m_propertiesIndex[BAUD_RATE] = 11;
+	m_propertiesIndex[PARITY] = 0;
+	m_propertiesIndex[STOP_BITS] = 0;
+	m_propertiesIndex[FLOW_CONTROL] = 0;
+	m_propertiesIndex[DATA_BITS] = 4;
 }
 
 CSerialPortSettings::~CSerialPortSettings()
@@ -65,30 +70,15 @@ int CSerialPortSettings::setSettables(_COMMPROP& comProp)
 	return ret;
 }
 
-//int CSerialPortSettings::getSettableBaudRates(vector<unsigned char>& settableBaud)
-//{
-//	return copyUCHARVector(m_settableBaudRatesIndex, settableBaud);
-//}
-//
-//int CSerialPortSettings::getSettableParities(vector<unsigned char>& settableParity)
-//{
-//	return copyUCHARVector(m_settableParitiesIndex, settableParity);
-//}
-//
-//int CSerialPortSettings::getSettableStopBits(vector<unsigned char>& settableStop)
-//{
-//	return copyUCHARVector(m_settableStopBitsIndex, settableStop);
-//}
-//
-//int CSerialPortSettings::getSettableFlowControls(vector<unsigned char>& settableFlow)
-//{
-//	return copyUCHARVector(m_settableFlowControlsIndex, settableFlow);
-//}
-//
-//int CSerialPortSettings::getSettableDataBits(vector<unsigned char>& settableDataBits)
-//{
-//	return copyUCHARVector(m_settableDataBitsIndex, settableDataBits);
-//}
+void CSerialPortSettings::setPropIndex(SerialProps prop, unsigned char index)
+{
+	m_propertiesIndex[prop] = index;
+}
+
+unsigned char CSerialPortSettings::getPropIndex(SerialProps prop)
+{
+	return m_propertiesIndex[prop];
+}
 
 int CSerialPortSettings::copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst)
 {
@@ -129,12 +119,14 @@ int CSerialPortSettings::setSettableBaudRates(DWORD SettableBaud)
 		if ((SettableBaud & mask) == mask)
 		{
 			m_settableBaudRatesIndex.push_back(num);
+			m_settablePropIndex[BAUD_RATE].push_back(num);
 		}
 		num++;
 	}
 	if ((SettableBaud & 0x10000000) == 0x10000000)
 	{
 		m_settableBaudRatesIndex.push_back(19);
+		m_settablePropIndex[BAUD_RATE].push_back(19);
 	}
 	return OK;
 }
@@ -153,6 +145,7 @@ int CSerialPortSettings::setSettableParities(WORD SettableStopParity)
 		if ((SettableStopParity & mask) == mask)
 		{
 			m_settableParitiesIndex.push_back(num);
+			m_settablePropIndex[PARITY].push_back(num);
 		}
 		num++;
 	}
@@ -171,6 +164,7 @@ int CSerialPortSettings::setSettableStopBits(WORD SettableStopParity)
 		if ((SettableStopParity & mask) == mask)
 		{
 			m_settableStopBitsIndex.push_back(num);
+			m_settablePropIndex[STOP_BITS].push_back(num);
 		}
 		num++;
 	}
@@ -191,13 +185,16 @@ int CSerialPortSettings::setSettableStopBits(WORD SettableStopParity)
 int CSerialPortSettings::setSettableFlowControls(DWORD ProvCapabilities)
 {
 	m_settableFlowControlsIndex.push_back(0);
+	m_settablePropIndex[FLOW_CONTROL].push_back(0);
 	m_settableFlowControlsIndex.push_back(1);
+	m_settablePropIndex[FLOW_CONTROL].push_back(1);
 	int num = 2;
 	for (unsigned int mask = 0x0001; mask <= 0x0200; mask <<= 1)
 	{
 		if ((ProvCapabilities & mask) == mask)
 		{
 			m_settableFlowControlsIndex.push_back(num);
+			m_settablePropIndex[FLOW_CONTROL].push_back(num);
 		}
 		num++;
 	}
@@ -219,6 +216,7 @@ int CSerialPortSettings::setSettableDataBits(WORD SettableData)
 		if ((SettableData & mask) == mask)
 		{
 			m_settableDataBitsIndex.push_back(num);
+			m_settablePropIndex[DATA_BITS].push_back(num);
 		}
 		num++;
 	}

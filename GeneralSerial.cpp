@@ -25,17 +25,11 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 		act->setCheckable(true);
 		m_portActionGroup->addAction(act);
 		portMenu->addAction(act);
-		//ui.menuPort->addAction(act);
 		_tprintf(_T("COM%u <%s>\n"), ports[i], friendlyNames[i].c_str());
 	}
 	ret = createActionGroups();
 	ret = CSerialPort::getPortsCapabilities();
 	ret = getSetabbles();
-	
-	//connect(ui.menuPort, &QMenu::triggered, this, &GeneralSerial::changePort);
-	//connect(portMenu, &QMenu::triggered, this, &GeneralSerial::changePort);
-	//connect(ui.menuBaudRate, &QMenu::triggered, this, &GeneralSerial::changeBaud);
-	//connect(baudMenu, &QMenu::triggered, this, &GeneralSerial::changeBaud);
 }
 
 int GeneralSerial::createMenus()
@@ -63,23 +57,7 @@ int GeneralSerial::createMenus()
 
 int GeneralSerial::createActionGroups()
 {
-	//m_baudActionGroup = new QActionGroup(this);
-	//for (int i = 0; i < CSerialPortSettings::baudRatesStrW.size(); ++i)
-	//{
-	//	QAction* act = new QAction(QString::fromStdWString(CSerialPortSettings::baudRatesStrW[i]));
-	//	act->setData(i);
-	//	act->setCheckable(true);
-	//	m_baudActionGroup->addAction(act);
-	//}
 	m_baudActionGroup = makeActionGroup(CSerialPortSettings::baudRatesStrW);
-	//m_parityActionGroup = new QActionGroup(this);
-	//for (int i = 0; i < CSerialPortSettings::parityStringsAltW.size(); ++i)
-	//{
-	//	QAction* act = new QAction(QString::fromStdWString(CSerialPortSettings::parityStringsAltW[i]));
-	//	act->setData(i);
-	//	act->setCheckable(true);
-	//	m_parityActionGroup->addAction(act);
-	//}
 	m_parityActionGroup = makeActionGroup(CSerialPortSettings::parityStringsAltW);
 	m_stopActionGroup = makeActionGroup(CSerialPortSettings::stopBitsStringsAltW);
 	m_flowActionGroup = makeActionGroup(CSerialPortSettings::flowControlStringsAltW);
@@ -107,20 +85,56 @@ int GeneralSerial::getSetabbles()
 	{
 		return -1;
 	}
-	for (int i = 0; i < port->settableBaud().size(); ++i)
+	m_currentPort = port;
+	int ret = OK;
+	ret = putActionsInMenu(m_baudActionGroup, baudMenu, BAUD_RATE);
+	ret = putActionsInMenu(m_parityActionGroup, parityMenu, PARITY);
+	ret = putActionsInMenu(m_stopActionGroup, stopMenu, STOP_BITS);
+	ret = putActionsInMenu(m_flowActionGroup, flowMenu, FLOW_CONTROL);
+	ret = putActionsInMenu(m_dataActionGroup, dataMenu, DATA_BITS);
+	return ret;
+}
+
+int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, const std::vector<unsigned char>& index, unsigned char selected)
+{
+	menu->clear();
+	if (selected < ag->actions().size())
 	{
-		//ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(port->settableBaud()[i]));
-		baudMenu->addAction(m_baudActionGroup->actions().at(port->settableBaud()[i]));
+		ag->actions()[selected]->setChecked(true);
 	}
-	//for (int i = 0; i < port->settableParity().size(); ++i)
-	//{
-	//	ui.menuBaudRate->addAction(m_parityActionGroup->actions().at(port->settableParity()[i]));
-	//}
-	//ret = CSerialPort::getSettableParities(m_currentPortIndex, settableBaudratesIndex);
-	//for (int i = 0; i < settableBaudratesIndex.size(); ++i)
-	//{
-	//	ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
-	//}
+	else
+	{ //should not happen!!!!
+		if (ag->checkedAction() != NULL)
+		{
+			ag->checkedAction()->setChecked(false);
+		}
+	}
+	for (int i = 0; i < index.size(); ++i)
+	{
+		menu->addAction(ag->actions().at(index[i]));
+	}
+	return OK;
+}
+
+int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, SerialProps prop)
+{
+	menu->clear();
+	unsigned char selected = m_currentPort->getPropIndex(prop);
+	if (selected < ag->actions().size())
+	{
+		ag->actions()[selected]->setChecked(true);
+	}
+	else
+	{ //should not happen!!!!
+		if (ag->checkedAction() != NULL)
+		{
+			ag->checkedAction()->setChecked(false);
+		}
+	}
+	for (int i = 0; i < m_currentPort->settableProps(prop).size(); ++i)
+	{
+		menu->addAction(ag->actions().at(m_currentPort->settableProps(prop)[i]));
+	}
 	return OK;
 }
 
@@ -128,47 +142,36 @@ void GeneralSerial::changePort(QAction* act)
 {
 	int newPort = act->data().toInt();
 	//wprintf_s(L"port %d: COM%d\n", newPort, m_serialPort.getPortNumber(newPort));
-	std::vector<unsigned char> settableBaudratesIndex;
 	if (m_currentPortIndex != newPort)
 	{
 		m_currentPortIndex = newPort;
-		//ui.menuBaudRate->clear();
-		baudMenu->clear();
-		if (m_baudActionGroup->checkedAction() != NULL)
-		{
-			m_baudActionGroup->checkedAction()->setChecked(false);
-		}
-		CSerialPort::getSettableBaudRates(newPort, settableBaudratesIndex);
-		for (int i = 0; i < settableBaudratesIndex.size(); ++i)
-		{
-			//ui.menuBaudRate->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
-			baudMenu->addAction(m_baudActionGroup->actions().at(settableBaudratesIndex[i]));
-		}
+		getSetabbles();
 	}
 	//wprintf_s(L"port: %s\n", act->text().toStdWString().c_str());
 }
 
 void GeneralSerial::changeBaud(QAction* act)
 {
-	wprintf_s(L"baud: %s\n", act->text().toStdWString().c_str());
+	m_currentPort->setPropIndex(BAUD_RATE, (unsigned char)act->data().toInt());
+	//wprintf_s(L"baud: %s\n", act->text().toStdWString().c_str());
 }
 
 void GeneralSerial::changeParity(QAction* act)
 {
-
+	m_currentPort->setPropIndex(PARITY, (unsigned char)act->data().toInt());
 }
 
 void GeneralSerial::changeStopBits(QAction* act)
 {
-
+	m_currentPort->setPropIndex(STOP_BITS, (unsigned char)act->data().toInt());
 }
 
 void GeneralSerial::changeFlowControl(QAction* act)
 {
-
+	m_currentPort->setPropIndex(FLOW_CONTROL, (unsigned char)act->data().toInt());
 }
 
 void GeneralSerial::changeDataBits(QAction* act)
 {
-
+	m_currentPort->setPropIndex(DATA_BITS, (unsigned char)act->data().toInt());
 }
