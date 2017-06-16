@@ -95,27 +95,6 @@ int GeneralSerial::getSetabbles()
 	return ret;
 }
 
-int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, const std::vector<unsigned char>& index, unsigned char selected)
-{
-	menu->clear();
-	if (selected < ag->actions().size())
-	{
-		ag->actions()[selected]->setChecked(true);
-	}
-	else
-	{ //should not happen!!!!
-		if (ag->checkedAction() != NULL)
-		{
-			ag->checkedAction()->setChecked(false);
-		}
-	}
-	for (int i = 0; i < index.size(); ++i)
-	{
-		menu->addAction(ag->actions().at(index[i]));
-	}
-	return OK;
-}
-
 int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, SerialProps prop)
 {
 	menu->clear();

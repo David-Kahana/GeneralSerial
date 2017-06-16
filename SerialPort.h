@@ -17,7 +17,6 @@ public:
 	static int getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames);
 	static int getPortNumber(int index);
 	static int getPortsCapabilities();
-	static int getSettableBaudRates(int portIndex, vector<unsigned char>& settableBaudratesIndex);
 	static CSerialPortSettings& getPortRef(int index);
 	static CSerialPortSettings* getPortPtr(int index);
 private:

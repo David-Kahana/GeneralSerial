@@ -118,14 +118,12 @@ int CSerialPortSettings::setSettableBaudRates(DWORD SettableBaud)
 	{
 		if ((SettableBaud & mask) == mask)
 		{
-			m_settableBaudRatesIndex.push_back(num);
 			m_settablePropIndex[BAUD_RATE].push_back(num);
 		}
 		num++;
 	}
 	if ((SettableBaud & 0x10000000) == 0x10000000)
 	{
-		m_settableBaudRatesIndex.push_back(19);
 		m_settablePropIndex[BAUD_RATE].push_back(19);
 	}
 	return OK;
@@ -144,7 +142,6 @@ int CSerialPortSettings::setSettableParities(WORD SettableStopParity)
 	{
 		if ((SettableStopParity & mask) == mask)
 		{
-			m_settableParitiesIndex.push_back(num);
 			m_settablePropIndex[PARITY].push_back(num);
 		}
 		num++;
@@ -163,7 +160,6 @@ int CSerialPortSettings::setSettableStopBits(WORD SettableStopParity)
 	{
 		if ((SettableStopParity & mask) == mask)
 		{
-			m_settableStopBitsIndex.push_back(num);
 			m_settablePropIndex[STOP_BITS].push_back(num);
 		}
 		num++;
@@ -184,16 +180,13 @@ int CSerialPortSettings::setSettableStopBits(WORD SettableStopParity)
 
 int CSerialPortSettings::setSettableFlowControls(DWORD ProvCapabilities)
 {
-	m_settableFlowControlsIndex.push_back(0);
 	m_settablePropIndex[FLOW_CONTROL].push_back(0);
-	m_settableFlowControlsIndex.push_back(1);
 	m_settablePropIndex[FLOW_CONTROL].push_back(1);
 	int num = 2;
 	for (unsigned int mask = 0x0001; mask <= 0x0200; mask <<= 1)
 	{
 		if ((ProvCapabilities & mask) == mask)
 		{
-			m_settableFlowControlsIndex.push_back(num);
 			m_settablePropIndex[FLOW_CONTROL].push_back(num);
 		}
 		num++;
@@ -215,7 +208,6 @@ int CSerialPortSettings::setSettableDataBits(WORD SettableData)
 	{
 		if ((SettableData & mask) == mask)
 		{
-			m_settableDataBitsIndex.push_back(num);
 			m_settablePropIndex[DATA_BITS].push_back(num);
 		}
 		num++;

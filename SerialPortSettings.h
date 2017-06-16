@@ -46,11 +46,6 @@ public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
 	int setSettables(_COMMPROP& comProp);
-	const vector<unsigned char>& settableBaud() const { return m_settableBaudRatesIndex; }
-	const vector<unsigned char>& settableParity() const { return m_settableParitiesIndex; }
-	const vector<unsigned char>& settableStop() const { return m_settableStopBitsIndex; }
-	const vector<unsigned char>& settableFlow() const { return m_settableFlowControlsIndex; }
-	const vector<unsigned char>& settableDataBits() const { return m_settableDataBitsIndex; }
 	const vector<unsigned char>& settableProps(SerialProps prop) const { return m_settablePropIndex[prop]; }
 	void setPropIndex(SerialProps prop, unsigned char index);
 	unsigned char getPropIndex(SerialProps prop);
@@ -65,10 +60,5 @@ private:
 private:
 	unsigned char m_propertiesIndex[LAST_PROP];
 	vector<unsigned char> m_settablePropIndex[LAST_PROP];
-	vector<unsigned char> m_settableBaudRatesIndex;
-	vector<unsigned char> m_settableParitiesIndex;
-	vector<unsigned char> m_settableStopBitsIndex;
-	vector<unsigned char> m_settableFlowControlsIndex;
-	vector<unsigned char> m_settableDataBitsIndex;
 };
 

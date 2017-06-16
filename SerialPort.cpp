@@ -60,19 +60,6 @@ int CSerialPort::scanPorts0()
 					bAdded = TRUE;
 				}
 			}
-			//If the port was a serial port, then also try to get its friendly name
-			//if (bAdded)
-			//{
-			//	ATL::CHeapPtr<BYTE> byFriendlyName;
-			//	if (QueryDeviceDescription(hDevInfoSet, devInfo, byFriendlyName))
-			//	{
-			//		m_friendlyNames.push_back(reinterpret_cast<LPCTSTR>(byFriendlyName.m_pData));
-			//	}
-			//	else
-			//	{
-			//		m_friendlyNames.push_back(_T(""));
-			//	}
-			//}
 		}
 		++nIndex;
 	}
@@ -114,18 +101,6 @@ int CSerialPort::getPortsCapabilities()
 		m_ports[i].getPortCapabilities();
 	}
 	return OK; //todo: return real 
-}
-
-int CSerialPort::getSettableBaudRates(int portIndex, vector<unsigned char>& settableBaudratesIndex)
-{
-	//settableBaudratesIndex.clear();
-	if (portIndex >= m_ports.size())
-	{
-		return -1;
-	}
-	//return m_ports[portIndex].m_portSettings.getSettableBaudRates(settableBaudratesIndex);
-	settableBaudratesIndex = m_ports[portIndex].m_portSettings.settableBaud();
-	return OK;
 }
 
 CSerialPortSettings& CSerialPort::getPortRef(int index)
