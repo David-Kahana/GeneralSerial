@@ -13,7 +13,13 @@ class CSerialPort
 public:
 	CSerialPort();
 	~CSerialPort();
+	//CSerialPort(const CSerialPort&) = default;
+	//CSerialPort& operator=(const CSerialPort&) 
+	//{
+
+	//};
 	static int scanPorts0();
+	static int rescanPorts();
 	static int getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames);
 	static int getPortNumber(int index);
 	static int getPortsCapabilities();

@@ -30,6 +30,9 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 	ret = createActionGroups();
 	ret = CSerialPort::getPortsCapabilities();
 	ret = getSetabbles();
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	timer->start(200);
 }
 
 int GeneralSerial::createMenus()
@@ -115,6 +118,38 @@ int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, SerialProps p
 		menu->addAction(ag->actions().at(m_currentPort->settableProps(prop)[i]));
 	}
 	return OK;
+}
+
+void GeneralSerial::update()
+{
+	//int ch = CSerialPort::rescanPorts();
+	//if (ch > 0)
+	//{
+	//	if (m_portActionGroup->checkedAction() != NULL)
+	//	{
+	//		m_portActionGroup->checkedAction()->setChecked(false);
+	//	}
+	//	portMenu->clear();
+	//	QList<QAction *> agl = m_portActionGroup->actions();
+	//	for (int i = 0; i < (int)agl.size(); ++i)
+	//	{
+	//		m_portActionGroup->removeAction(agl[i]);
+	//		delete agl[i];
+	//	}
+	//	std::vector<UINT> ports;
+	//	std::vector<std::wstring> friendlyNames;
+	//	CSerialPort::getPorts(ports, friendlyNames);
+	//	for (int i = 0; i < ports.size(); ++i)
+	//	{
+	//		QString portName = "COM" + QString::number(ports[i]) + " " + QString::fromStdWString(friendlyNames[i]);
+	//		QAction* act = new QAction(portName);
+	//		act->setData(i);
+	//		act->setCheckable(true);
+	//		m_portActionGroup->addAction(act);
+	//		portMenu->addAction(act);
+	//		_tprintf(_T("COM%u <%s>\n"), ports[i], friendlyNames[i].c_str());
+	//	}
+	//}
 }
 
 void GeneralSerial::changePort(QAction* act)

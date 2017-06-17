@@ -13,6 +13,7 @@ public:
 public:
 	GeneralSerial(QWidget *parent = Q_NULLPTR);
 private slots:
+	void update();
 	void changePort(QAction* act);
 	void changeBaud(QAction* act);
 	void changeParity(QAction* act);
@@ -35,7 +36,7 @@ private:
 	QMenu* dataMenu;
 	int m_currentPortIndex = 0;
 	CSerialPortSettings* m_currentPort;
-	
+	QTimer *timer;
 private:
 	int createMenus();
 	int createActionGroups();

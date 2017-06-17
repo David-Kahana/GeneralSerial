@@ -46,6 +46,7 @@ public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
 	int setSettables(_COMMPROP& comProp);
+	int clearSettables();
 	const vector<unsigned char>& settableProps(SerialProps prop) const { return m_settablePropIndex[prop]; }
 	void setPropIndex(SerialProps prop, unsigned char index);
 	unsigned char getPropIndex(SerialProps prop);

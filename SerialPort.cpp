@@ -73,6 +73,127 @@ int CSerialPort::scanPorts0()
 	return TRUE;
 }
 
+int CSerialPort::rescanPorts()
+{
+	int changes = 0;
+	vector<UINT> newPortNumbers;
+	vector<UINT> addPorts;
+	vector<UINT> removePorts;
+	vector<wstring> newFriendlyNames;
+	DWORD dwFlags = DIGCF_PRESENT;
+	GUID guid = GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR;
+	//Create a "device information set" for the specified GUID
+	HDEVINFO hDevInfoSet = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlags);
+	if (hDevInfoSet == INVALID_HANDLE_VALUE)
+	{
+		return -1;
+	}
+	//Finally do the enumeration
+	BOOL bMoreItems = TRUE;
+	int nIndex = 0;
+	SP_DEVINFO_DATA devInfo;
+	newPortNumbers.clear();
+	newFriendlyNames.clear();
+	addPorts.clear(); 
+	removePorts.clear();
+	while (bMoreItems)
+	{
+		//Enumerate the current device
+		devInfo.cbSize = sizeof(SP_DEVINFO_DATA);
+		bMoreItems = SetupDiEnumDeviceInfo(hDevInfoSet, nIndex, &devInfo);
+		if (bMoreItems)
+		{
+			//Did we find a serial port for this device
+			//Get the registry key which stores the ports settings
+			ATL::CRegKey deviceKey;
+			deviceKey.Attach(SetupDiOpenDevRegKey(hDevInfoSet, &devInfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE));
+			if (deviceKey != INVALID_HANDLE_VALUE)
+			{
+				int nPort = 0;
+				if (QueryRegistryPortName(deviceKey, nPort))
+				{
+					newPortNumbers.push_back((UINT)nPort);
+					ATL::CHeapPtr<BYTE> byFriendlyName;
+					if (QueryDeviceDescription(hDevInfoSet, devInfo, byFriendlyName))
+					{
+						newFriendlyNames.push_back(reinterpret_cast<LPCTSTR>(byFriendlyName.m_pData));
+					}
+					else
+					{
+						newFriendlyNames.push_back(L"");
+					}
+				}
+			}
+		}
+		++nIndex;
+	}
+	//Free up the "device information set" now that we are finished with it
+	SetupDiDestroyDeviceInfoList(hDevInfoSet);
+	for (int i = 0; i < (int)newPortNumbers.size(); ++i)
+	{
+		bool found = false;
+		int j = -1;
+		while(!found && j < (int)m_ports.size())
+		{
+			j++;
+			found |= (newPortNumbers[i] == m_ports[j].m_portNumber);
+		}
+		if (found)
+		{
+			if (newFriendlyNames[i].compare(m_ports[j].m_friendlyName) != 0) //name has changed
+			{//update port
+				m_ports[j].m_friendlyName = newFriendlyNames[i];
+				m_ports[j].m_portSettings.clearSettables();
+				m_ports[j].getPortCapabilities();
+				changes++;
+			}
+		}
+		else
+		{ //new port
+			addPorts.push_back(i);
+		}
+	}
+	for (int i = 0; i < (int)m_ports.size(); ++i)
+	{
+		bool found = false;
+		int j = -1;
+		while (!found && j < (int)newPortNumbers.size())
+		{
+			j++;
+			found |= (m_ports[i].m_portNumber == newPortNumbers[j]);
+		}
+		if (!found)
+		{ //port to removed
+			removePorts.push_back(m_ports[i].m_portNumber);
+			changes++;
+		}
+	}
+	for (int i = 0; i < (int)removePorts.size(); ++i) //remove ports
+	{//find the port to remove	
+		vector <CSerialPort>::iterator iter;
+		for (iter = m_ports.begin(); iter != m_ports.end() && (removePorts[i] != iter->m_portNumber); iter++);
+		if (iter == m_ports.end())
+		{
+			//somthing is wrong
+		}
+		else
+		{
+			m_ports.erase(iter); //remove the port
+		}
+	}
+	//for (int i = 0; i < (int)addPorts.size(); ++i)
+	//{
+	//	vector <CSerialPort>::iterator iter;
+	//	for (iter = m_ports.begin(); iter != m_ports.end() && (newPortNumbers[addPorts[i]] >= iter->m_portNumber); iter++);
+	//	CSerialPort* newPort = new CSerialPort;
+	//	newPort->m_portNumber = (UINT)newPortNumbers[addPorts[i]];
+	//	newPort->m_friendlyName = newFriendlyNames[addPorts[i]];
+	//	m_ports.insert(iter, *newPort);
+	//	newPort->getPortCapabilities();
+	//}
+	return changes;
+}
+
 int CSerialPort::getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames)
 {
 	ports.clear();

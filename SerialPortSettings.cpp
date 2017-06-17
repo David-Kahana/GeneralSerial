@@ -70,6 +70,15 @@ int CSerialPortSettings::setSettables(_COMMPROP& comProp)
 	return ret;
 }
 
+int CSerialPortSettings::clearSettables()
+{
+	for (int i = 0; i < (int)LAST_PROP; ++i)
+	{
+		m_settablePropIndex[i].clear();
+	}
+	return OK;
+}
+
 void CSerialPortSettings::setPropIndex(SerialProps prop, unsigned char index)
 {
 	m_propertiesIndex[prop] = index;
