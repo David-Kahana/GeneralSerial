@@ -96,6 +96,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SerialPort.cpp" />
     <ClCompile Include="SerialPortSettings.cpp" />
+    <ClCompile Include="SerialPortsMngt.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -116,6 +117,7 @@
     <ClInclude Include="JsonSettings.h" />
     <ClInclude Include="SerialPort.h" />
     <ClInclude Include="SerialPortSettings.h" />
+    <ClInclude Include="SerialPortsMngt.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

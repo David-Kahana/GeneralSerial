@@ -3,7 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_GeneralSerial.h"
 #include "JsonSettings.h"
-#include "SerialPort.h"
+#include "SerialPortsMngt.h"
 
 class GeneralSerial : public QMainWindow
 {
