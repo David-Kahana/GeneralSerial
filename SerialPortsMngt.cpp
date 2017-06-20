@@ -3,6 +3,11 @@
 
 CSerialPortsMngt::CSerialPortsMngt()
 {
+	for (int i = 0; i < MAX_NUMBER_OF_PORTS; ++i)
+	{
+		m_currentPorts[i] = nullptr;
+		m_removedPorts[i] = nullptr;
+	}
 }
 
 CSerialPortsMngt::~CSerialPortsMngt()
@@ -13,33 +18,88 @@ int CSerialPortsMngt::scanPorts()
 {
 	vector<CSerialPort*> newPorts;
 	int ret = scanForAllPorts(newPorts);
-	//check if ports removed
-	bool portRemoved = true;
-	while (portRemoved)
+	for (int i = 0; i < MAX_NUMBER_OF_PORTS; ++i)
 	{
-		int i = 0;
-		while ((i < (int)m_currentPorts.size()) && (findInVect(m_currentPorts[i], newPorts) >= 0)) ++i;
-		if (i == (int)m_currentPorts.size())
+		if (m_currentPorts[i] != nullptr)
 		{
-			portRemoved = false;
+			int found = findInVect(m_currentPorts[i], newPorts);
+			if (found < 0)
+			{
+				if (m_removedPorts[i] != nullptr)
+				{ //sould not happen
+					return -1;
+				}
+				m_removedPorts[i] = m_currentPorts[i];
+				m_currentPorts[i] = nullptr;
+			}
+		}
+	}
+	for (int i = 0; i < (int)newPorts.size(); ++i)
+	{
+		CSerialPort* port = newPorts[i];
+		int num = port->getPortNumber();
+		if (num <= 0 || num >= MAX_NUMBER_OF_PORTS)
+		{
+			return -1;
+		}
+		if (m_currentPorts[num] == nullptr) // port not in current ports
+		{
+			if (m_removedPorts[num] == nullptr) // port not in removed ports
+			{
+				m_currentPorts[num] = port;
+			}
+			else
+			{
+				if (m_removedPorts[num]->isEqual(port))
+				{
+					m_currentPorts[num] = m_removedPorts[num];
+					delete port;
+					newPorts[i] = nullptr;
+				}
+				else
+				{
+					m_currentPorts[num] = port;
+					delete m_removedPorts[num];
+					m_currentPorts[num]->getPortsCapabilities();
+				}
+				m_removedPorts[num] = nullptr;
+			}
 		}
 		else
 		{
-			CSerialPort* toRemove = m_currentPorts[i];
-			m_currentPorts[i] = nullptr;
-			m_currentPorts.erase(m_currentPorts.begin() + i);
-			insertInVect(toRemove, m_removedPorts);
+			if (!m_currentPorts[num]->isEqual(port))
+			{
+				delete m_currentPorts[num];
+				m_currentPorts[num] = port;
+				m_currentPorts[num]->getPortsCapabilities();
+			}
+			else
+			{
+				delete port;
+				newPorts[i] = nullptr;
+			}
 		}
 	}
-
 	return OK;
 }
 
-int CSerialPortsMngt::findInVect(CSerialPort* port, vector<CSerialPort*> portVect)
+int CSerialPortsMngt::findInVect(CSerialPort* port, vector<CSerialPort*>& portVect)
 {
 	int i = (int)portVect.size() - 1;
 	while ((i >= 0) && !(portVect[i]->isEqual(port))) --i;
 	return i;
+}
+
+int CSerialPortsMngt::insertInVect(CSerialPort* port, vector<CSerialPort*>& portVect)
+{
+	vector<CSerialPort*>::iterator iter = portVect.begin();
+	while (iter != portVect.end() && ((*iter)->isSmaller(port))) iter++;
+	if ((*iter)->isEqual(port)) //should not happen
+	{
+		return -1;
+	}
+	portVect.insert(iter, port);
+	return OK;
 }
 
 int CSerialPortsMngt::scanForAllPorts(vector<CSerialPort*>& newPorts)

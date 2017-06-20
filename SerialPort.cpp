@@ -27,6 +27,19 @@ bool CSerialPort::isEqual(CSerialPort* other)
 	return ((m_portNumber == other->m_portNumber) && (m_friendlyName.compare(other->m_friendlyName) == 0));
 }
 
+bool CSerialPort::isSmaller(CSerialPort& other)
+{
+	return (m_portNumber < other.m_portNumber);
+}
+
+bool CSerialPort::isSmaller(CSerialPort* other)
+{
+	return (m_portNumber < other->m_portNumber);
+}
+int CSerialPort::getPortNumber()
+{
+	return (int)m_portNumber;
+}
 //int CSerialPort::scanPorts0()
 //{
 //	m_ports.clear();
@@ -210,26 +223,26 @@ bool CSerialPort::isEqual(CSerialPort* other)
 //	return changes;
 //}
 
-int CSerialPort::getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames)
-{
-	ports.clear();
-	friendlyNames.clear();
-	for (int i = 0; i < m_ports.size(); ++i)
-	{
-		ports.push_back(m_ports[i].m_portNumber);
-		friendlyNames.push_back(m_ports[i].m_friendlyName);
-	}
-	return (int)m_ports.size();
-}
-
-int CSerialPort::getPortNumber(int index)
-{
-	if (index < 0 || index >= (int)m_ports.size())
-	{
-		return -1;
-	}
-	return (int)m_ports[index].m_portNumber;
-}
+//int CSerialPort::getPorts(vector<UINT>& ports, vector<wstring>& friendlyNames)
+//{
+//	ports.clear();
+//	friendlyNames.clear();
+//	for (int i = 0; i < m_ports.size(); ++i)
+//	{
+//		ports.push_back(m_ports[i].m_portNumber);
+//		friendlyNames.push_back(m_ports[i].m_friendlyName);
+//	}
+//	return (int)m_ports.size();
+//}
+//
+//int CSerialPort::getPortNumber(int index)
+//{
+//	if (index < 0 || index >= (int)m_ports.size())
+//	{
+//		return -1;
+//	}
+//	return (int)m_ports[index].m_portNumber;
+//}
 
 int CSerialPort::getPortsCapabilities()
 {
