@@ -47,6 +47,7 @@ int CSerialPortsMngt::scanPorts()
 			if (m_removedPorts[num] == nullptr) // port not in removed ports
 			{
 				m_currentPorts[num] = port;
+				m_currentPorts[num]->getPortCapabilities();
 			}
 			else
 			{
@@ -60,7 +61,7 @@ int CSerialPortsMngt::scanPorts()
 				{
 					m_currentPorts[num] = port;
 					delete m_removedPorts[num];
-					m_currentPorts[num]->getPortsCapabilities();
+					m_currentPorts[num]->getPortCapabilities();
 				}
 				m_removedPorts[num] = nullptr;
 			}
@@ -71,7 +72,7 @@ int CSerialPortsMngt::scanPorts()
 			{
 				delete m_currentPorts[num];
 				m_currentPorts[num] = port;
-				m_currentPorts[num]->getPortsCapabilities();
+				m_currentPorts[num]->getPortCapabilities();
 			}
 			else
 			{
@@ -81,6 +82,30 @@ int CSerialPortsMngt::scanPorts()
 		}
 	}
 	return OK;
+}
+
+int CSerialPortsMngt::getPortsNames(vector<UINT>& ports, vector<wstring>& friendlyNames)
+{
+	ports.clear();
+	friendlyNames.clear();
+	for (int i = 0; i < MAX_NUMBER_OF_PORTS; ++i)
+	{
+		if (m_currentPorts[i] != nullptr)
+		{
+			ports.push_back(m_currentPorts[i]->getPortNumber());
+			friendlyNames.push_back(m_currentPorts[i]->getFriendlyNameW());
+		}
+	}
+	return OK;
+}
+
+CSerialPort* CSerialPortsMngt::getPortByNumber(int num)
+{
+	if (num <= 0 || num >= MAX_NUMBER_OF_PORTS)
+	{
+		return nullptr;
+	}
+	return m_currentPorts[num];
 }
 
 int CSerialPortsMngt::findInVect(CSerialPort* port, vector<CSerialPort*>& portVect)

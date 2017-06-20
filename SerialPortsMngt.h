@@ -9,8 +9,10 @@ public:
 	CSerialPortsMngt();
 	~CSerialPortsMngt();
 	int scanPorts();
-	static int scanForAllPorts(vector<CSerialPort*>& newPorts);
+	int getPortsNames(vector<UINT>& ports, vector<wstring>& friendlyNames);
+	CSerialPort* getPortByNumber(int num);
 private:
+	static int scanForAllPorts(vector<CSerialPort*>& newPorts);
 	static int QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort);
 	static int RegQueryValueString(ATL::CRegKey& key, LPCTSTR lpValueName, LPTSTR& pszValue);
 	static int QueryDeviceDescription(HDEVINFO hDevInfoSet, SP_DEVINFO_DATA& devInfo, ATL::CHeapPtr<BYTE>& byFriendlyName);

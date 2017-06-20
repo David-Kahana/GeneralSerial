@@ -34,7 +34,8 @@ private:
 	QMenu* stopMenu;
 	QMenu* flowMenu; 
 	QMenu* dataMenu;
-	int m_currentPortIndex = 0;
+	CSerialPortsMngt m_ports;
+	int m_currentPortnumber = 0;
 	CSerialPortSettings* m_currentPort;
 	QTimer *timer;
 private:
