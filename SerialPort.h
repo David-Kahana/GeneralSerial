@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include "SerialPortSettings.h"
-
+#define MAX_NUMBER_OF_PORTS 256
 using namespace std;
 
 class CSerialPort
@@ -23,9 +23,17 @@ public:
 	int getPortCapabilities();
 	CSerialPortSettings& getPortSettingsRef();
 	CSerialPortSettings* getPortSettingsPtr();
+	int openPort();
+	int closePort();
+	int getPortSettings(); //win32 side
 private:
 	UINT m_portNumber;
+	wchar_t m_portName[12];
 	wstring m_friendlyName;
 	CSerialPortSettings m_portSettings;
+	HANDLE m_hComm;
+	DCB m_dcb;
+private:
+	int setPortName();
 };
 

@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "SerialPortSettings.h"
 
-const vector<string> CSerialPortSettings::parityStrings = { "No parity", "Odd parity", "Even parity", "Mark parity", "Space parity" };
-const vector<wstring> CSerialPortSettings::parityStringsW = { L"No parity", L"Odd parity", L"Even parity", L"Mark parity", L"Space parity" };
-const vector<string> CSerialPortSettings::parityStringsAlt = { "None", "Odd", "Even", "Mark", "Space" };
-const vector<wstring> CSerialPortSettings::parityStringsAltW = { L"None", L"Odd", L"Even", L"Mark", L"Space" };
 const vector<string> CSerialPortSettings::stopBitsStrings = { "1 stop bit", "1.5 stop bits", "2 stop bits" };
 const vector<wstring> CSerialPortSettings::stopBitsStringsW = { L"1 stop bit", L"1.5 stop bits", L"2 stop bits" };
 const vector<string> CSerialPortSettings::stopBitsStringsAlt = { "1", "2", "1.5" };
 const vector<wstring> CSerialPortSettings::stopBitsStringsAltW = { L"1", L"2", L"1.5" };
+const vector<WORD> CSerialPortSettings::stopBits = { STOPBITS_10, STOPBITS_15, STOPBITS_20 };
+const vector<BYTE> CSerialPortSettings::stopBitsDCB = { ONESTOPBIT, ONE5STOPBITS, TWOSTOPBITS };
+
+
 const vector<string> CSerialPortSettings::flowControlStrings = { "No Flow Control", "Software Control", "DTR(data - terminal - ready) / DSR(data - set - ready) supported", 
 "RTS(request - to - send) / CTS(clear - to - send) supported", "RLSD(receive - line - signal - detect) supported", "Parity checking supported", "XON / XOFF flow control supported",
 "Settable XON / XOFF supported", "The total(elapsed) time - outs supported", "Interval time - outs supported", "Special character support provided", "Special 16 - bit mode supported" };
@@ -19,16 +19,34 @@ const vector<string> CSerialPortSettings::flowControlStringsAlt = { "None", "Sof
 "Interval time-outs", "Special character", "Special 16-bit" };
 const vector<wstring> CSerialPortSettings::flowControlStringsAltW = { L"None", L"Software", L"DTR/DSR", L"RTS/CTS", L"RLSD", L"Parity checking", L"XON/XOFF", L"Settable XON/XOFF", L"Total time-outs",
 L"Interval time-outs", L"Special character", L"Special 16-bit" };
-const vector<string> CSerialPortSettings::dataBitsStrings = {"5 data bits", "6 data bits", "7 data bits", "8 data bits", "16 data bits", "Special wide path through serial hardware lines"};
-const vector<wstring> CSerialPortSettings::dataBitsStringsW = { L"5 data bits", L"6 data bits", L"7 data bits", L"8 data bits", L"16 data bits", L"Special wide path through serial hardware lines" };
-const vector<string> CSerialPortSettings::dataBitsStringsAlt = { "5", "6", "7", "8", "16", "Special" };
-const vector<wstring> CSerialPortSettings::dataBitsStringsAltW = { L"5", L"6", L"7", L"8", L"16", L"Special" };
+
+
 const vector<wstring> CSerialPortSettings::baudRatesStrW = { L"BAUD_075", L"BAUD_110",L"BAUD_134_5",L"BAUD_150",L"BAUD_300",L"BAUD_600",L"BAUD_1200",
 L"BAUD_1800",L"BAUD_2400",L"BAUD_4800",L"BAUD_7200",L"BAUD_9600",L"BAUD_14400",L"BAUD_19200",
 L"BAUD_38400",L"BAUD_56K",L"BAUD_128K",L"BAUD_115200",L"BAUD_57600",L"BAUD_USER" };
 const vector<string> CSerialPortSettings::baudRatesStr = { "BAUD_075", "BAUD_110","BAUD_134_5","BAUD_150","BAUD_300","BAUD_600","BAUD_1200",
 "BAUD_1800","BAUD_2400","BAUD_4800","BAUD_7200","BAUD_9600","BAUD_14400","BAUD_19200",
 "BAUD_38400","BAUD_56K","BAUD_128K","BAUD_115200","BAUD_57600","BAUD_USER" };
+const vector<DWORD> CSerialPortSettings::baudRates = {BAUD_075, BAUD_110, BAUD_134_5, BAUD_150, BAUD_300, BAUD_600, BAUD_1200, 
+BAUD_1800, BAUD_2400, BAUD_4800, BAUD_7200, BAUD_9600, BAUD_14400, BAUD_19200,
+BAUD_38400, BAUD_56K, BAUD_128K, BAUD_115200, BAUD_57600, BAUD_USER};
+const vector<DWORD> CSerialPortSettings::baudRatesDCB = { 0, CBR_110, 0, 0, CBR_300, CBR_600, CBR_1200,
+0, CBR_2400, CBR_4800, 0, CBR_9600, CBR_14400, CBR_19200,
+CBR_38400, CBR_56000, CBR_128000, CBR_115200, CBR_57600, CBR_256000 };
+
+const vector<string> CSerialPortSettings::dataBitsStrings = {"5 data bits", "6 data bits", "7 data bits", "8 data bits", "16 data bits", "Special wide path through serial hardware lines"};
+const vector<wstring> CSerialPortSettings::dataBitsStringsW = { L"5 data bits", L"6 data bits", L"7 data bits", L"8 data bits", L"16 data bits", L"Special wide path through serial hardware lines" };
+const vector<string> CSerialPortSettings::dataBitsStringsAlt = { "5", "6", "7", "8", "16", "Special" };
+const vector<wstring> CSerialPortSettings::dataBitsStringsAltW = { L"5", L"6", L"7", L"8", L"16", L"Special" };
+const vector<WORD> CSerialPortSettings::dataBits = { DATABITS_5, DATABITS_6, DATABITS_7, DATABITS_8, DATABITS_16, DATABITS_16X };
+const vector<BYTE> CSerialPortSettings::dataBitsDCB = { 5, 6, 7, 8, 16, 32 };
+
+const vector<string> CSerialPortSettings::parityStrings = { "No parity", "Odd parity", "Even parity", "Mark parity", "Space parity" };
+const vector<wstring> CSerialPortSettings::parityStringsW = { L"No parity", L"Odd parity", L"Even parity", L"Mark parity", L"Space parity" };
+const vector<string> CSerialPortSettings::parityStringsAlt = { "None", "Odd", "Even", "Mark", "Space" };
+const vector<wstring> CSerialPortSettings::parityStringsAltW = { L"None", L"Odd", L"Even", L"Mark", L"Space" };
+const vector<WORD> CSerialPortSettings::parity = { PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE };
+const vector<BYTE> CSerialPortSettings::parityDCB = { NOPARITY, ODDPARITY, EVENPARITY, MARKPARITY, SPACEPARITY };
 
 CSerialPortSettings::CSerialPortSettings()
 {
@@ -87,6 +105,22 @@ void CSerialPortSettings::setPropIndex(SerialProps prop, unsigned char index)
 unsigned char CSerialPortSettings::getPropIndex(SerialProps prop)
 {
 	return m_propertiesIndex[prop];
+}
+
+int CSerialPortSettings::props2DCB(DCB& dcb)
+{
+	DWORD br = baudRatesDCB[m_propertiesIndex[(int)BAUD_RATE]];
+	if (br == 0)
+	{
+		wprintf_s(L"baud rate: %s unsupported by DCB\n", baudRatesStrW[m_propertiesIndex[(int)BAUD_RATE]].c_str());
+		return -1;
+	}
+	dcb.BaudRate = br;
+	dcb.ByteSize = dataBitsDCB[m_propertiesIndex[(int)DATA_BITS]];
+	dcb.Parity = parityDCB[m_propertiesIndex[(int)PARITY]];
+	dcb.StopBits = stopBitsDCB[m_propertiesIndex[(int)STOP_BITS]];
+	wprintf_s(L"port setting transferred to DCB\n");
+	return OK;
 }
 
 int CSerialPortSettings::copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst)

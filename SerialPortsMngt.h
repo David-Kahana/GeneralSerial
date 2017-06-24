@@ -1,8 +1,6 @@
 #pragma once
 #include "SerialPort.h"
 
-#define MAX_NUMBER_OF_PORTS 256
-
 class CSerialPortsMngt
 {
 public:

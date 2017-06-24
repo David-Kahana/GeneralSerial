@@ -55,6 +55,57 @@ CSerialPortSettings* CSerialPort::getPortSettingsPtr()
 	return &(m_portSettings);
 }
 
+int CSerialPort::openPort()
+{
+	int ret = setPortName();
+	if (ret != OK)
+	{
+		return ret;
+	}
+	m_hComm = CreateFileW(m_portName,
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		0,//FILE_FLAG_OVERLAPPED,
+		NULL);
+	if (m_hComm == INVALID_HANDLE_VALUE)
+	{// error opening port; abort
+		wprintf_s(L"error: openning port : %s\n", m_portName);
+		return -3;
+	}
+	wprintf_s(L"port %s opened!\n", m_portName);
+	return OK;
+}
+
+int CSerialPort::closePort()
+{
+	if (CloseHandle(m_hComm) != TRUE)
+	{
+		wprintf_s(L"error: problem closing port : %s\n", m_portName);
+		return -1;
+	}
+	wprintf_s(L"port %s closed!\n", m_portName);
+	return OK;
+}
+
+int CSerialPort::getPortSettings() //win32 side
+{
+	SecureZeroMemory(&m_dcb, sizeof(DCB));//  Initialize the DCB structure.
+	m_dcb.DCBlength = sizeof(DCB);
+	BOOL fSuccess = GetCommState(m_hComm, &m_dcb);//  retrieving all current settings
+	if (fSuccess != TRUE)
+	{//  Handle the error.
+		wprintf_s(L"GetCommState failed with error %d.\n", GetLastError());
+		return -1;
+	}
+
+	wprintf_s(L"\nBaudRate = %d, ByteSize = %d, Parity = %d, StopBits = %d\n", m_dcb.BaudRate, m_dcb.ByteSize, m_dcb.Parity, m_dcb.StopBits); //Output to console
+
+	wprintf_s(L"got settings for port: %s\n", m_portName);
+	return OK;
+}
+
 int CSerialPort::getPortCapabilities()
 {
 	int ret = 0;
@@ -77,4 +128,26 @@ int CSerialPort::getPortCapabilities()
 	ret = m_portSettings.setSettables(comProp);
 	CloseHandle(hComm);//Closing the Serial Port
 	return ret;
+}
+
+int CSerialPort::setPortName()
+{
+	if (m_portNumber >= MAX_NUMBER_OF_PORTS)
+	{
+		wprintf_s(L"error: port number: %d\n", (int)m_portNumber);
+		return -1;
+	}
+	int ret = swprintf_s(m_portName, L"\\\\.\\COM");
+	if (ret == -1)
+	{
+		wprintf_s(L"error: port name creation");
+		return -2;
+	}
+	errno_t err = _itow_s((int)m_portNumber, &(m_portName[7]), 3, 10);
+	if (err != 0)
+	{
+		wprintf_s(L"error: port number conversion: %d\n", (int)m_portNumber);
+		return -3;
+	}
+	return OK;
 }

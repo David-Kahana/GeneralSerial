@@ -33,6 +33,11 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 	timer->start(200);
+
+	CSerialPort* prt = m_ports.getPortByNumber(1);
+	prt->openPort();
+	prt->getPortSettings();
+	prt->closePort();
 }
 
 int GeneralSerial::createMenus()
