@@ -68,7 +68,7 @@ int GeneralSerial::createActionGroups()
 	m_baudActionGroup = makeActionGroup(CSerialPortSettings::baudRatesStrW);
 	m_parityActionGroup = makeActionGroup(CSerialPortSettings::parityStringsAltW);
 	m_stopActionGroup = makeActionGroup(CSerialPortSettings::stopBitsStringsAltW);
-	m_flowActionGroup = makeActionGroup(CSerialPortSettings::flowControlStringsAltW);
+	m_flowActionGroup = makeActionGroup(CSerialPortSettings::flowControlDCBStringsW);
 	m_dataActionGroup = makeActionGroup(CSerialPortSettings::dataBitsStringsAltW);
 	return OK;
 }

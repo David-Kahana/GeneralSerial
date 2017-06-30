@@ -19,6 +19,8 @@ const vector<string> CSerialPortSettings::flowControlStringsAlt = { "None", "Sof
 "Interval time-outs", "Special character", "Special 16-bit" };
 const vector<wstring> CSerialPortSettings::flowControlStringsAltW = { L"None", L"Software", L"DTR/DSR", L"RTS/CTS", L"RLSD", L"Parity checking", L"XON/XOFF", L"Settable XON/XOFF", L"Total time-outs",
 L"Interval time-outs", L"Special character", L"Special 16-bit" };
+const vector<string> CSerialPortSettings::flowControlDCBStrings = { "None", "Software", "Hardware" };
+const vector<wstring> CSerialPortSettings::flowControlDCBStringsW = { L"None", L"Software", L"Hardware" };
 
 
 const vector<wstring> CSerialPortSettings::baudRatesStrW = { L"BAUD_075", L"BAUD_110",L"BAUD_134_5",L"BAUD_150",L"BAUD_300",L"BAUD_600",L"BAUD_1200",
@@ -119,6 +121,28 @@ int CSerialPortSettings::props2DCB(DCB& dcb)
 	dcb.ByteSize = dataBitsDCB[m_propertiesIndex[(int)DATA_BITS]];
 	dcb.Parity = parityDCB[m_propertiesIndex[(int)PARITY]];
 	dcb.StopBits = stopBitsDCB[m_propertiesIndex[(int)STOP_BITS]];
+	dcb.fInX = FALSE;
+	dcb.fOutX = FALSE;
+	dcb.fOutxCtsFlow = FALSE;
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	switch (m_propertiesIndex[(int)FLOW_CONTROL])
+	{
+	case 0: //QSerialPort::NoFlowControl:
+		break;
+	case 1: //QSerialPort::SoftwareControl:
+		dcb.fInX = TRUE;
+		dcb.fOutX = TRUE;
+		break;
+	case 2: //QSerialPort::HardwareControl:
+		dcb.fOutxCtsFlow = TRUE;
+		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+		break;
+	default:
+		wprintf_s(L"this flow contol unsupported by this implementation\n");
+		return -2;
+		break;
+	}
+
 	wprintf_s(L"port setting transferred to DCB\n");
 	return OK;
 }
@@ -223,17 +247,20 @@ int CSerialPortSettings::setSettableStopBits(WORD SettableStopParity)
 
 int CSerialPortSettings::setSettableFlowControls(DWORD ProvCapabilities)
 {
+	//m_settablePropIndex[FLOW_CONTROL].push_back(0);
+	//m_settablePropIndex[FLOW_CONTROL].push_back(1);
+	//int num = 2;
+	//for (unsigned int mask = 0x0001; mask <= 0x0200; mask <<= 1)
+	//{
+	//	if ((ProvCapabilities & mask) == mask)
+	//	{
+	//		m_settablePropIndex[FLOW_CONTROL].push_back(num);
+	//	}
+	//	num++;
+	//}
 	m_settablePropIndex[FLOW_CONTROL].push_back(0);
 	m_settablePropIndex[FLOW_CONTROL].push_back(1);
-	int num = 2;
-	for (unsigned int mask = 0x0001; mask <= 0x0200; mask <<= 1)
-	{
-		if ((ProvCapabilities & mask) == mask)
-		{
-			m_settablePropIndex[FLOW_CONTROL].push_back(num);
-		}
-		num++;
-	}
+	m_settablePropIndex[FLOW_CONTROL].push_back(2);
 	return OK;
 }
 

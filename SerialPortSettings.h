@@ -52,8 +52,8 @@ public:
 	static const vector<string> flowControlStringsAlt;
 	static const vector<wstring> flowControlStringsW;
 	static const vector<wstring> flowControlStringsAltW;
-	
-	
+	static const vector<string> flowControlDCBStrings;
+	static const vector<wstring> flowControlDCBStringsW;
 	
 	bool localEchoEnabled;
 public:
