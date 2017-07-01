@@ -26,6 +26,7 @@ public:
 	int openPort();
 	int closePort();
 	int getPortSettings(); //win32 side
+	int toJsonObject(Document& jsonDoc, Value& portJsonObj);
 private:
 	UINT m_portNumber;
 	wchar_t m_portName[12];

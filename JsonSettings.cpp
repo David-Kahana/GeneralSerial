@@ -22,7 +22,7 @@ void CJsonSettings::createDefaultConfig()
 
 	StringBuffer buffer;
 	Writer<StringBuffer> writer(buffer);
-	d.Accept(writer);
+	
 
 	printf_s("%s\n", buffer.GetString());
 	//enum Type {
@@ -34,8 +34,21 @@ void CJsonSettings::createDefaultConfig()
 	//	kStringType = 5,    //!< string
 	//	kNumberType = 6     //!< number
 	//};
-	for (Value::ConstMemberIterator itr = d.MemberBegin();
-		itr != d.MemberEnd(); ++itr)
+
+
+	Value nnn;
+	nnn.SetObject();
+	string a = "aaaa";
+	Value str;
+	str.SetString(a.c_str(), d.GetAllocator());
+	nnn.AddMember("Port", str, d.GetAllocator());
+	nnn.AddMember("Baud", 9600, d.GetAllocator());
+
+	d.AddMember("port settings",nnn, d.GetAllocator());
+	d.Accept(writer);
+
+
+	for (Value::ConstMemberIterator itr = d.MemberBegin(); itr != d.MemberEnd(); ++itr)
 	{
 		printf_s("Type of member %s is %d\n",itr->name.GetString(), (int)itr->value.GetType());
 	}

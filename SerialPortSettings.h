@@ -4,6 +4,7 @@
 #include <atlbase.h>
 #include <vector>
 #include <string>
+#include "JsonSettings.h"
 
 #define OK 1
 
@@ -21,7 +22,10 @@ enum SerialProps
 
 class CSerialPortSettings
 {
+#pragma region Constants
 public:
+	static const vector<const char*> propsNames;
+
 	static const vector<wstring> baudRatesStrW;
 	static const vector<string> baudRatesStr;
 	static const vector<DWORD> baudRates;
@@ -47,6 +51,7 @@ public:
 	static const vector<wstring> stopBitsStringsAltW;
 	static const vector<WORD> stopBits;
 	static const vector<BYTE> stopBitsDCB;
+	static const vector<float> stopBitsNum;
 
 	static const vector<string> flowControlStrings;
 	static const vector<string> flowControlStringsAlt;
@@ -54,8 +59,8 @@ public:
 	static const vector<wstring> flowControlStringsAltW;
 	static const vector<string> flowControlDCBStrings;
 	static const vector<wstring> flowControlDCBStringsW;
+#pragma endregion	
 	
-	bool localEchoEnabled;
 public:
 	CSerialPortSettings();
 	~CSerialPortSettings();
@@ -65,7 +70,7 @@ public:
 	void setPropIndex(SerialProps prop, unsigned char index);
 	unsigned char getPropIndex(SerialProps prop);
 	int props2DCB(DCB& dcb);
-	
+	int toJsonObject(Document& jsonDoc, Value& portJsonObj);
 private:
 	static int copyUCHARVector(vector<unsigned char>& src, vector<unsigned char>& dst);
 	int setSettableBaudRates(DWORD SettableBaud);
@@ -76,5 +81,7 @@ private:
 private:
 	unsigned char m_propertiesIndex[LAST_PROP];
 	vector<unsigned char> m_settablePropIndex[LAST_PROP];
+	bool localEchoEnabled;
+	Value m_names[LAST_PROP];
 };
 

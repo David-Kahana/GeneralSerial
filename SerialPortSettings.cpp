@@ -1,13 +1,16 @@
 #include "stdafx.h"
 #include "SerialPortSettings.h"
 
+#pragma region Constants
+const vector<const char*> CSerialPortSettings::propsNames = { "BaudRate", "Parity", "StopBits", "FlowControl", "DataBits" };
+
 const vector<string> CSerialPortSettings::stopBitsStrings = { "1 stop bit", "1.5 stop bits", "2 stop bits" };
 const vector<wstring> CSerialPortSettings::stopBitsStringsW = { L"1 stop bit", L"1.5 stop bits", L"2 stop bits" };
 const vector<string> CSerialPortSettings::stopBitsStringsAlt = { "1", "2", "1.5" };
 const vector<wstring> CSerialPortSettings::stopBitsStringsAltW = { L"1", L"2", L"1.5" };
 const vector<WORD> CSerialPortSettings::stopBits = { STOPBITS_10, STOPBITS_15, STOPBITS_20 };
 const vector<BYTE> CSerialPortSettings::stopBitsDCB = { ONESTOPBIT, ONE5STOPBITS, TWOSTOPBITS };
-
+const vector<float> CSerialPortSettings::stopBitsNum = { 1.0, 1.5, 2.0 };
 
 const vector<string> CSerialPortSettings::flowControlStrings = { "No Flow Control", "Software Control", "DTR(data - terminal - ready) / DSR(data - set - ready) supported", 
 "RTS(request - to - send) / CTS(clear - to - send) supported", "RLSD(receive - line - signal - detect) supported", "Parity checking supported", "XON / XOFF flow control supported",
@@ -21,7 +24,6 @@ const vector<wstring> CSerialPortSettings::flowControlStringsAltW = { L"None", L
 L"Interval time-outs", L"Special character", L"Special 16-bit" };
 const vector<string> CSerialPortSettings::flowControlDCBStrings = { "None", "Software", "Hardware" };
 const vector<wstring> CSerialPortSettings::flowControlDCBStringsW = { L"None", L"Software", L"Hardware" };
-
 
 const vector<wstring> CSerialPortSettings::baudRatesStrW = { L"BAUD_075", L"BAUD_110",L"BAUD_134_5",L"BAUD_150",L"BAUD_300",L"BAUD_600",L"BAUD_1200",
 L"BAUD_1800",L"BAUD_2400",L"BAUD_4800",L"BAUD_7200",L"BAUD_9600",L"BAUD_14400",L"BAUD_19200",
@@ -49,6 +51,7 @@ const vector<string> CSerialPortSettings::parityStringsAlt = { "None", "Odd", "E
 const vector<wstring> CSerialPortSettings::parityStringsAltW = { L"None", L"Odd", L"Even", L"Mark", L"Space" };
 const vector<WORD> CSerialPortSettings::parity = { PARITY_NONE, PARITY_ODD, PARITY_EVEN, PARITY_MARK, PARITY_SPACE };
 const vector<BYTE> CSerialPortSettings::parityDCB = { NOPARITY, ODDPARITY, EVENPARITY, MARKPARITY, SPACEPARITY };
+#pragma endregion
 
 CSerialPortSettings::CSerialPortSettings()
 {
@@ -56,7 +59,11 @@ CSerialPortSettings::CSerialPortSettings()
 	m_propertiesIndex[PARITY] = 0;
 	m_propertiesIndex[STOP_BITS] = 0;
 	m_propertiesIndex[FLOW_CONTROL] = 0;
-	m_propertiesIndex[DATA_BITS] = 4;
+	m_propertiesIndex[DATA_BITS] = 3;
+	for (int i = 0; i < LAST_PROP; ++i)
+	{
+		m_names[i] = StringRef(propsNames[i]);
+	}
 }
 
 CSerialPortSettings::~CSerialPortSettings()
@@ -144,6 +151,28 @@ int CSerialPortSettings::props2DCB(DCB& dcb)
 	}
 
 	wprintf_s(L"port setting transferred to DCB\n");
+	return OK;
+}
+
+int CSerialPortSettings::toJsonObject(Document& jsonDoc, Value& portJsonObj)
+{
+	Value values[LAST_PROP];
+	values[BAUD_RATE].SetUint((unsigned int)baudRatesDCB[m_propertiesIndex[BAUD_RATE]]);
+	values[PARITY].SetString(parityStringsAlt[m_propertiesIndex[PARITY]].c_str(), jsonDoc.GetAllocator());
+	values[STOP_BITS].SetFloat(stopBitsNum[m_propertiesIndex[STOP_BITS]]);
+	values[FLOW_CONTROL].SetString(flowControlDCBStrings[m_propertiesIndex[FLOW_CONTROL]].c_str(), jsonDoc.GetAllocator());
+	values[DATA_BITS].SetUint((unsigned int)dataBitsDCB[m_propertiesIndex[DATA_BITS]]);
+	for (int i = 0; i < LAST_PROP; ++i)
+	{
+		if (portJsonObj.HasMember(m_names[i]))
+		{
+			portJsonObj[m_names[i]] = values[i];
+		}
+		else
+		{
+			portJsonObj.AddMember(m_names[i], values[i], jsonDoc.GetAllocator());
+		}
+	}
 	return OK;
 }
 

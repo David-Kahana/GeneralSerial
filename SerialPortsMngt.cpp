@@ -108,6 +108,25 @@ CSerialPort* CSerialPortsMngt::getPortByNumber(int num)
 	return m_currentPorts[num];
 }
 
+int CSerialPortsMngt::saveJson()
+{
+	Document d;
+	StringBuffer buffer;
+	//Writer<StringBuffer> writer(buffer);
+
+	d.SetObject();
+	Value ports;
+	ports.SetObject();
+	int ret = m_currentPorts[1]->toJsonObject(d, ports);
+	d.AddMember("Ports", ports, d.GetAllocator());
+
+	PrettyWriter<StringBuffer> writer(buffer);
+	d.Accept(writer);
+
+	printf_s("%s\n", buffer.GetString());
+	return OK;
+}
+
 int CSerialPortsMngt::findInVect(CSerialPort* port, vector<CSerialPort*>& portVect)
 {
 	int i = (int)portVect.size() - 1;

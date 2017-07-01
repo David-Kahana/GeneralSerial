@@ -9,6 +9,7 @@ public:
 	int scanPorts();
 	int getPortsNames(vector<UINT>& ports, vector<wstring>& friendlyNames);
 	CSerialPort* getPortByNumber(int num);
+	int saveJson();
 private:
 	static int scanForAllPorts(vector<CSerialPort*>& newPorts);
 	static int QueryRegistryPortName(ATL::CRegKey& deviceKey, int& nPort);

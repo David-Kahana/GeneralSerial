@@ -8,7 +8,7 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 	std::vector<std::wstring> friendlyNames;
 	ui.setupUi(this);
 	CJsonSettings& s = CJsonSettings::getInstance();
-	s.createDefaultConfig();
+	//s.createDefaultConfig();
 	int ret = m_ports.scanPorts();
 	if (ret == OK)
 	{
@@ -38,6 +38,8 @@ GeneralSerial::GeneralSerial(QWidget *parent)
 	prt->openPort();
 	prt->getPortSettings();
 	prt->closePort();
+
+	m_ports.saveJson();
 }
 
 int GeneralSerial::createMenus()

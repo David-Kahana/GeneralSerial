@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SerialPort.h"
+#include <codecvt>
 
 CSerialPort::CSerialPort(unsigned int number, wstring friendlyName): m_portNumber(number), m_friendlyName(friendlyName)
 {
@@ -103,6 +104,39 @@ int CSerialPort::getPortSettings() //win32 side
 	wprintf_s(L"\nBaudRate = %d, ByteSize = %d, Parity = %d, StopBits = %d\n", m_dcb.BaudRate, m_dcb.ByteSize, m_dcb.Parity, m_dcb.StopBits); //Output to console
 
 	wprintf_s(L"got settings for port: %s\n", m_portName);
+	return OK;
+}
+
+int CSerialPort::toJsonObject(Document& jsonDoc, Value& portJsonObj)
+{
+	Value portName;
+	std::string port_name = "COM";
+	port_name += std::to_string(m_portNumber);
+	portName.SetString(port_name.c_str(), jsonDoc.GetAllocator());
+
+	Value portfName;
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	wstring_convert<convert_type, wchar_t> converter;
+	string port_fname = converter.to_bytes(m_friendlyName);
+	portfName.SetString(port_fname.c_str(), jsonDoc.GetAllocator());
+
+	if (portJsonObj.HasMember("PortName"))
+	{
+		portJsonObj["PortName"] = portName;
+	}
+	else
+	{
+		portJsonObj.AddMember("PortName", portName, jsonDoc.GetAllocator());
+	}
+	if (portJsonObj.HasMember("PortFriendlyName"))
+	{
+		portJsonObj["PortFriendlyName"] = portfName;
+	}
+	else
+	{
+		portJsonObj.AddMember("PortFriendlyName", portfName, jsonDoc.GetAllocator());
+	}
+	int ret = m_portSettings.toJsonObject(jsonDoc, portJsonObj);
 	return OK;
 }
 
