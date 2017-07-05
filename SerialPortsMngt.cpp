@@ -112,17 +112,25 @@ int CSerialPortsMngt::saveJson()
 {
 	Document d;
 	StringBuffer buffer;
+	int ret = 0;
 	//Writer<StringBuffer> writer(buffer);
 
 	d.SetObject();
 	Value ports;
 	ports.SetObject();
-	int ret = m_currentPorts[1]->toJsonObject(d, ports);
+	for (int i = 0; i < MAX_NUMBER_OF_PORTS; ++i)
+	{
+		if (m_currentPorts[i] != nullptr)
+		{
+			Value port;
+			port.SetObject();
+			ret = m_currentPorts[i]->toJsonObject(d, port);
+			ports.AddMember("Port", port, d.GetAllocator());
+		}
+	}
 	d.AddMember("Ports", ports, d.GetAllocator());
-
 	PrettyWriter<StringBuffer> writer(buffer);
 	d.Accept(writer);
-
 	printf_s("%s\n", buffer.GetString());
 	return OK;
 }

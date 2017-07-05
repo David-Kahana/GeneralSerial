@@ -4,12 +4,14 @@
 
 CSerialPort::CSerialPort(unsigned int number, wstring friendlyName): m_portNumber(number), m_friendlyName(friendlyName)
 {
+	//int ret = setPortName();
 }
 
 CSerialPort::CSerialPort(unsigned int number, string friendlyName) : m_portNumber(number)
 {
 	CA2W ca2w(friendlyName.c_str());
 	m_friendlyName = ca2w;
+	//int ret = setPortName();
 }
 
 CSerialPort::~CSerialPort()
@@ -118,6 +120,7 @@ int CSerialPort::toJsonObject(Document& jsonDoc, Value& portJsonObj)
 	using convert_type = std::codecvt_utf8<wchar_t>;
 	wstring_convert<convert_type, wchar_t> converter;
 	string port_fname = converter.to_bytes(m_friendlyName);
+	port_fname.push_back(0);
 	portfName.SetString(port_fname.c_str(), jsonDoc.GetAllocator());
 
 	if (portJsonObj.HasMember("PortName"))
