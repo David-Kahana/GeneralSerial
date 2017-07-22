@@ -113,11 +113,9 @@ int CSerialPortsMngt::saveJson()
 	Document d;
 	StringBuffer buffer;
 	int ret = 0;
-	//Writer<StringBuffer> writer(buffer);
-
 	d.SetObject();
 	Value ports;
-	ports.SetObject();
+	ports.SetArray();
 	for (int i = 0; i < MAX_NUMBER_OF_PORTS; ++i)
 	{
 		if (m_currentPorts[i] != nullptr)
@@ -125,13 +123,49 @@ int CSerialPortsMngt::saveJson()
 			Value port;
 			port.SetObject();
 			ret = m_currentPorts[i]->toJsonObject(d, port);
-			ports.AddMember("Port", port, d.GetAllocator());
+			ports.PushBack(port, d.GetAllocator());
 		}
 	}
 	d.AddMember("Ports", ports, d.GetAllocator());
 	PrettyWriter<StringBuffer> writer(buffer);
 	d.Accept(writer);
 	printf_s("%s\n", buffer.GetString());
+	wstring filename(L"PortSettings.json");
+	CFileUtil::writeToFile(filename, buffer.GetString(), (unsigned int)buffer.GetSize());
+	return OK;
+}
+
+int CSerialPortsMngt::loadJson()
+{
+	char* buf = nullptr;
+	unsigned int bufSize = 0;
+	int retr = CFileUtil::readFromFile(CJsonSettings::getInstance().getFileName(), &buf, bufSize);
+
+	printf_s("JsonLoaded: \n %s\n\n", buf);
+	
+	Document d;
+	d.Parse(buf);
+	Type tp = d.GetType();
+
+	if (!d.IsObject())
+	{
+		return -1;
+	}
+	if (!d.HasMember("Ports"))
+	{
+		return -2;
+	}
+	const Value& jports = d["Ports"];
+	if (!jports.IsArray())
+	{
+		return -3;
+	}
+	for (SizeType i = 0; i < jports.Size(); i++) // Uses SizeType instead of size_t
+	{
+		const Value& jport = jports[i];
+		printf_s("\n%s\n", jport["PortFriendlyName"].GetString());
+	}
+
 	return OK;
 }
 

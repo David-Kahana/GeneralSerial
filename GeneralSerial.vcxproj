@@ -79,6 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="GeneralSerial.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_GeneralSerial.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -103,6 +104,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileUtil.h" />
     <ClInclude Include="GeneratedFiles\ui_GeneralSerial.h" />
     <CustomBuild Include="GeneralSerial.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

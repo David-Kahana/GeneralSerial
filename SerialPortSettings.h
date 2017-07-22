@@ -6,8 +6,6 @@
 #include <string>
 #include "JsonSettings.h"
 
-#define OK 1
-
 using namespace std;
 
 enum SerialProps
