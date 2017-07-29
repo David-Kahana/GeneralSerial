@@ -34,13 +34,13 @@ public:
     {
         if (GeneralSerialClass->objectName().isEmpty())
             GeneralSerialClass->setObjectName(QStringLiteral("GeneralSerialClass"));
-        GeneralSerialClass->resize(600, 400);
+        GeneralSerialClass->resize(800, 400);
         centralWidget = new QWidget(GeneralSerialClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         GeneralSerialClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(GeneralSerialClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 600, 38));
+        menuBar->setGeometry(QRect(0, 0, 800, 38));
         GeneralSerialClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(GeneralSerialClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));

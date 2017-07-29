@@ -140,8 +140,8 @@ int CSerialPortsMngt::loadJson()
 	char* buf = nullptr;
 	unsigned int bufSize = 0;
 	int retr = CFileUtil::readFromFile(CJsonSettings::getInstance().getFileName(), &buf, bufSize);
-
-	printf_s("JsonLoaded: \n %s\n\n", buf);
+	printf_s("\nJson Loaded \n\n");
+	//printf_s("JsonLoaded: \n %s\n\n", buf);
 	
 	Document d;
 	d.Parse(buf);

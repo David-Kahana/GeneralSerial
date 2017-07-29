@@ -13,6 +13,7 @@ GeneralSerial::GeneralSerial(QWidget *parent) : QMainWindow(parent)
 		ret = m_ports.getPortsNames(ports, friendlyNames);
 	}
 	ret = createMenus();
+	ret = setUpFileMenu();
 	m_portActionGroup = new QActionGroup(this);
 	m_portActionGroup->setExclusive(true);
 	for (int i = 0; i < ports.size(); ++i)
@@ -42,6 +43,11 @@ GeneralSerial::GeneralSerial(QWidget *parent) : QMainWindow(parent)
 
 int GeneralSerial::createMenus()
 {
+	fileMenu = new QMenu("File", this);
+	ui.menuBar->addMenu(fileMenu);
+	connect(fileMenu, &QMenu::triggered, this, &GeneralSerial::fileOperation);
+	connectMenu = new QMenu("Connect", this);
+	ui.menuBar->addMenu(connectMenu);
 	portMenu = new QMenu("Port", this);
 	ui.menuBar->addMenu(portMenu);
 	connect(portMenu, &QMenu::triggered, this, &GeneralSerial::changePort);
@@ -60,6 +66,22 @@ int GeneralSerial::createMenus()
 	dataMenu = new QMenu("Data Bits", this);
 	ui.menuBar->addMenu(dataMenu);
 	connect(dataMenu, &QMenu::triggered, this, &GeneralSerial::changeDataBits);
+	return OK;
+}
+
+int GeneralSerial::setUpFileMenu()
+{
+	m_fileActionGroup = new QActionGroup(this);
+	m_fileActionGroup->setExclusive(false);
+	QAction* act = new QAction("Save Port Config");
+	act->setCheckable(false);
+	act->setData((int)eFileOperations::SAVE_PORT_CONF);
+	m_fileActionGroup->addAction(act);
+	act = new QAction("Load Port Config");
+	act->setCheckable(false);
+	act->setData((int)eFileOperations::LOAD_PORT_CONF);
+	m_fileActionGroup->addAction(act);
+	fileMenu->addActions(m_fileActionGroup->actions());
 	return OK;
 }
 
@@ -129,6 +151,22 @@ int GeneralSerial::putActionsInMenu(QActionGroup* ag, QMenu* menu, SerialProps p
 		menu->addAction(ag->actions().at(setable[i]));
 	}
 	return OK;
+}
+
+void GeneralSerial::fileOperation(QAction* act)
+{
+	eFileOperations op = (eFileOperations)act->data().toInt();
+	switch (op)
+	{
+	case SAVE_PORT_CONF:
+		m_ports.saveJson();
+		break;
+	case LOAD_PORT_CONF:
+		m_ports.loadJson();
+		break;
+	default:
+		break;
+	}
 }
 
 void GeneralSerial::update()
